@@ -1,0 +1,188 @@
+@import '@fontsource/tajawal/400.css';
+@import '@fontsource/tajawal/500.css';
+@import '@fontsource/tajawal/700.css';
+@import '@fontsource/tajawal/800.css';
+@import '@fontsource/cairo/400.css';
+@import '@fontsource/cairo/500.css';
+@import '@fontsource/cairo/700.css';
+@import '@fontsource/cairo/800.css';
+@import '@fontsource/almarai/400.css';
+@import '@fontsource/almarai/700.css';
+@import '@fontsource/almarai/800.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== الوضع الليلي: زجاجي (Glass Aurora) بألوان زرقاء/تركوازية ===== */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ink-950: 7 18 31;
+  --ink-900: 11 26 44;
+  --ink-800: 14 31 51;
+  --ink-700: 22 44 68;
+  --ink-600: 34 62 90;
+  --c-white: 255 255 255;
+  --s100: 244 249 253;
+  --s200: 226 238 246;
+  --s300: 203 221 233;
+  --s400: 178 204 220;
+  --s500: 134 163 181;
+  --s600: 96 125 144;
+  --accent: 103 232 249;
+  --home: 52 211 153;
+  --fast: 251 176 64;
+  --brand1: 34 211 238;
+  --brand2: 52 211 153;
+  --violet: 129 140 248;
+  --pink: 251 176 64;
+  --danger: 252 165 165;
+  --onaccent: 6 49 47;
+  --glow: 0.14;
+  --card-bg: linear-gradient(150deg, rgb(255 255 255 / 0.13), rgb(255 255 255 / 0.05));
+  --card-bd: rgb(255 255 255 / 0.2);
+  --card-sh: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 16px 36px -22px rgb(0 0 0 / 0.7);
+  --card-blur: blur(14px);
+  --page-bg:
+    radial-gradient(520px 520px at 100% -6%, rgb(14 165 233 / 0.5), transparent 68%),
+    radial-gradient(520px 520px at -12% 38%, rgb(20 184 166 / 0.34), transparent 68%),
+    radial-gradient(480px 480px at 105% 100%, rgb(79 70 229 / 0.38), transparent 68%),
+    rgb(7 18 31);
+  --hero-bg: linear-gradient(135deg, rgb(34 211 238 / 0.34), rgb(52 211 153 / 0.2));
+  --hero-fg: 255 255 255;
+  --hero-bd: rgb(255 255 255 / 0.34);
+  --hero-sh: inset 0 1px 0 rgb(255 255 255 / 0.4), 0 24px 50px -22px rgb(34 211 238 / 0.6);
+  --hero-chip-bg: rgb(255 255 255 / 0.16);
+  --hero-chip-fg: 255 255 255;
+}
+
+/* ===== الوضع النهاري: Aqua Light ===== */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --ink-950: 234 247 250;
+  --ink-900: 245 250 251;
+  --ink-800: 255 255 255;
+  --ink-700: 232 243 246;
+  --ink-600: 214 232 236;
+  --c-white: 15 42 51;
+  --s100: 15 42 51;
+  --s200: 27 58 68;
+  --s300: 51 80 90;
+  --s400: 69 97 104;
+  --s500: 99 124 131;
+  --s600: 150 172 178;
+  --accent: 14 116 144;
+  --home: 13 148 136;
+  --fast: 217 119 6;
+  --brand1: 34 211 238;
+  --brand2: 52 211 153;
+  --violet: 79 70 229;
+  --pink: 217 119 6;
+  --danger: 185 28 28;
+  --onaccent: 6 49 47;
+  --glow: 0.1;
+  --card-bg: #fff;
+  --card-bd: rgb(214 232 236);
+  --card-sh: 0 8px 22px -14px rgb(6 120 150 / 0.3);
+  --card-blur: none;
+  --page-bg: linear-gradient(180deg, #eaf7fa 0%, #f5fafb 40%, #f7fbf8 100%);
+  --hero-bg: linear-gradient(135deg, color-mix(in srgb, rgb(var(--brand1)) 78%, white) 0%, color-mix(in srgb, rgb(var(--brand2)) 90%, white) 62%, #8cf0a8 100%);
+  --hero-fg: 4 48 43;
+  --hero-bd: transparent;
+  --hero-sh: 0 22px 40px -18px rgb(20 160 140 / 0.7);
+  --hero-chip-bg: #fff;
+  --hero-chip-fg: 14 95 102;
+}
+
+/* الخط وحجمه: يضبطهما App من الإعدادات (متغير --font وحجم html) */
+:root { --font: 'Tajawal', system-ui, sans-serif; }
+html { font-size: 13px; }
+
+html, body, #root { min-height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: rgb(var(--s100));
+  background: var(--page-bg);
+  background-attachment: fixed;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl;
+    background: var(--card-bg);
+    border: 1px solid var(--card-bd);
+    box-shadow: var(--card-sh);
+    -webkit-backdrop-filter: var(--card-blur);
+    backdrop-filter: var(--card-blur);
+  }
+  .field {
+    @apply w-full rounded-xl border border-white/10 bg-ink-900 px-3 py-2.5 text-[1rem] text-slate-100
+      placeholder:text-slate-600 outline-none transition focus:border-accent/70 focus:shadow-glow;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-medium text-slate-400;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40;
+  }
+  .btn-primary {
+    @apply btn bg-gradient-to-l from-brand1 to-brand2 text-onaccent shadow-glow;
+  }
+  .btn-ghost {
+    @apply btn border border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08];
+  }
+  .btn-danger {
+    @apply btn border border-red-500/30 bg-red-500/10 text-danger hover:bg-red-500/20;
+  }
+}
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* بانر الفترة (Mint Soft داخل Aqua / زجاجي في الليلي) */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  background: var(--hero-bg);
+  color: rgb(var(--hero-fg));
+  border: 1px solid var(--hero-bd);
+  box-shadow: var(--hero-sh);
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -2.5rem;
+  top: -3rem;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.22);
+  pointer-events: none;
+}
+.hero-chip {
+  background: var(--hero-chip-bg);
+  color: rgb(var(--hero-chip-fg));
+  border-radius: 999px;
+  font-weight: 800;
+}
+.hero-soft { opacity: 0.82; }
+
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type='number'] { -moz-appearance: textfield; }
+
+.safe-top { padding-top: max(env(safe-area-inset-top), 0px); }
+.safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: rgb(var(--ink-600)); border-radius: 9px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
