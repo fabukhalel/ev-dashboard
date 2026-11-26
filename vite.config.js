@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.test.js'],
     coverage: {
-      include: ['src/lib/**'],
+      include: ['src/lib/**', 'src/state/reducer.js'],
       // رسم PDF على canvas والصور والثيم تعتمد على DOM، يغطيها اختبار Playwright؛ i18n قاموس نصوص
       exclude: ['src/lib/report.js', 'src/lib/image.js', 'src/lib/theme.js', 'src/lib/i18n.jsx'],
       reporter: ['text-summary', 'text'],
