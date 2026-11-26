@@ -31,20 +31,21 @@ export default function DateField({ id, value, onChange, label, min, max }) {
   return (
     <div>
       {label && <label className="label" htmlFor={id}>{label}</label>}
-      <div className="relative">
+      {/* الحقل كله LTR حتى لا تغطي أيقونة التقويم أول التاريخ في RTL (F1) */}
+      <div className="relative" dir="ltr">
         <input
           id={id}
           dir="ltr"
           inputMode="numeric"
           autoComplete="off"
           placeholder={t('date_ph')}
-          className={`field tabular pe-11 ${invalid ? '!border-red-500/60' : ''}`}
+          className={`field tabular pr-12 text-start ${invalid ? '!border-danger/60' : ''}`}
           value={text}
           onChange={onType}
           onBlur={() => { if (value) setText(formatDate(value)); }}
           aria-invalid={invalid}
         />
-        <span className="absolute end-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center overflow-hidden rounded-lg text-accent">
+        <span className="absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center overflow-hidden rounded-xl text-accent">
           <CalendarDays size={19} />
           <input
             type="date"

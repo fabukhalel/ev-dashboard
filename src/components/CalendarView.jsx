@@ -1,16 +1,19 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
-import { ChargeItem } from './ChargeList.jsx';
-import { MONTHS, WEEKDAYS_SHORT, ymd, todayStr, fix } from '../lib/format.js';
+import ChargeList from './ChargeList.jsx';
+import { NavArrow, C } from './ui.jsx';
+import { MONTHS, WEEKDAYS_SHORT, ymd, todayStr, num, formatDate } from '../lib/format.js';
+import { cycleOf } from '../lib/cycle.js';
+import { numberCharges } from '../state/derived.js';
 import { useI18n } from '../lib/i18n.jsx';
+import { useStore } from '../state/store.jsx';
 
-export default function CalendarView({ charges, segments, currency, onEdit, onDelete, initialMonth }) {
-  const { t, lang, rtl } = useI18n();
-  const init = initialMonth && initialMonth !== 'all' ? initialMonth : todayStr().slice(0, 7);
-  const [ym, setYm] = useState(init);
+/** التقويم (C8–C10): kWh داخل كل يوم شحن، تمييز يوم بداية الدورة، والضغط على يوم يعرض شحناته */
+export default function CalendarView({ charges, settings, onOpen }) {
+  const { t, lang } = useI18n();
+  const { state: { bills } } = useStore();
+  const [ym, setYm] = useState(todayStr().slice(0, 7));
   const [selected, setSelected] = useState(null);
-
-  const [y, m] = ym.split('-').map(Number); // m: 1..12
+  const [y, m] = ym.split('-').map(Number);
   const today = todayStr();
 
   const byDay = useMemo(() => {
@@ -23,11 +26,21 @@ export default function CalendarView({ charges, segments, currency, onEdit, onDe
     return map;
   }, [charges, ym]);
 
+  // بدايات الدورات التي تقع في هذا الشهر (الفواتير المسجلة تغلب)
+  const cycleStarts = useMemo(() => {
+    const set = new Set();
+    for (let d = 1; d <= 31; d++) {
+      const key = ymd(new Date(y, m - 1, d));
+      if (!key.startsWith(ym)) break;
+      if (cycleOf(key, settings.cycleStartDay, bills).start === key) set.add(key);
+    }
+    return set;
+  }, [ym, y, m, settings.cycleStartDay, bills]);
+
   const first = new Date(y, m - 1, 1);
   const daysInMonth = new Date(y, m, 0).getDate();
-  const lead = first.getDay(); // الأحد = 0 (أول عمود)
   const cells = [];
-  for (let i = 0; i < lead; i++) cells.push(null);
+  for (let i = 0; i < first.getDay(); i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
   while (cells.length % 7 !== 0) cells.push(null);
 
@@ -38,40 +51,34 @@ export default function CalendarView({ charges, segments, currency, onEdit, onDe
   };
 
   const monthCharges = [...byDay.values()].flat();
-  const homeDays = new Set(monthCharges.filter((c) => c.type === 'home').map((c) => c.date)).size;
-  const fastDays = new Set(monthCharges.filter((c) => c.type === 'fast').map((c) => c.date)).size;
-  const effById = new Map(segments.map((s) => [s.endId, s.efficiency]));
+  const monthKwh = monthCharges.reduce((s, c) => s + c.energyKwh, 0);
   const selList = selected ? byDay.get(selected) || [] : [];
-  const PrevIcon = rtl ? ChevronRight : ChevronLeft;
-  const NextIcon = rtl ? ChevronLeft : ChevronRight;
+  const selNumbers = selected ? numberCharges(charges, cycleOf(selected, settings.cycleStartDay, bills)) : null;
   const monthName = MONTHS[lang][m - 1];
 
   return (
     <div className="space-y-4">
       <section className="card p-4">
         <div className="mb-4 flex items-center justify-between">
-          <button className="btn-ghost !px-3 !py-2" onClick={() => shift(-1)} aria-label={t('prev_month')}><PrevIcon size={18} /></button>
+          <NavArrow dir={-1} onClick={() => shift(-1)} label={t('prev_month')} className="bg-ink-900" />
           <div className="text-center">
-            <div className="text-lg font-extrabold">{monthName} {y}</div>
-            <div className="tabular text-[0.7rem] text-slate-400">{t('cal_stats', { n: monthCharges.length, h: homeDays, f: fastDays })}</div>
+            <div className="text-lg font-bold">{monthName} {y}</div>
+            <div className="tabular text-sm text-slate-400">{t('charges_n', { n: monthCharges.length })} · <bdi dir="ltr">{num(monthKwh, 1)} kWh</bdi></div>
           </div>
-          <button className="btn-ghost !px-3 !py-2" onClick={() => shift(1)} aria-label={t('next_month')}><NextIcon size={18} /></button>
+          <NavArrow dir={1} onClick={() => shift(1)} label={t('next_month')} className="bg-ink-900" />
         </div>
 
         <div className="grid grid-cols-7 gap-1 text-center" role="grid" aria-label={t('cal_aria')}>
-          {WEEKDAYS_SHORT[lang].map((w) => (
-            <div key={w} className="pb-1 text-[0.7rem] font-medium text-slate-500">{w}</div>
-          ))}
+          {WEEKDAYS_SHORT[lang].map((w) => <div key={w} className="pb-1 text-xs font-medium text-slate-500">{w}</div>)}
           {cells.map((d, i) => {
             if (d == null) return <div key={`e${i}`} />;
             const key = ymd(new Date(y, m - 1, d));
             const list = byDay.get(key) || [];
-            const hasHome = list.some((c) => c.type === 'home');
-            const hasFast = list.some((c) => c.type === 'fast');
-            const isToday = key === today;
+            const kwh = list.reduce((s, c) => s + c.energyKwh, 0);
+            const type = list.some((c) => c.type === 'fast') ? (list.some((c) => c.type === 'home') ? 'mixed' : 'fast') : 'home';
             const isSel = key === selected;
-            const tint = hasHome && hasFast ? 'bg-gradient-to-br from-home/25 to-fast/25' : hasHome ? 'bg-home/20' : hasFast ? 'bg-fast/20' : 'bg-ink-900/60';
-            const ring = isSel ? 'ring-2 ring-accent' : isToday ? 'ring-1 ring-white/40' : 'ring-1 ring-white/[0.04]';
+            const tint = !list.length ? 'transparent' : type === 'mixed' ? `linear-gradient(135deg, color-mix(in srgb, ${C.home} 22%, transparent), color-mix(in srgb, ${C.fast} 22%, transparent))` : `color-mix(in srgb, ${type === 'fast' ? C.fast : C.home} 20%, transparent)`;
+            const cycleStart = cycleStarts.has(key);
             return (
               <button
                 key={key}
@@ -79,39 +86,32 @@ export default function CalendarView({ charges, segments, currency, onEdit, onDe
                 onClick={() => setSelected(list.length ? (isSel ? null : key) : null)}
                 disabled={!list.length}
                 aria-label={list.length ? t('day_aria_n', { d, m: monthName, n: list.length }) : t('day_aria', { d, m: monthName })}
-                className={`tabular relative flex aspect-square flex-col items-center justify-center rounded-xl text-sm transition ${tint} ${ring} ${list.length ? 'font-bold' : 'text-slate-500'}`}
+                data-testid={cycleStart ? 'cycle-start-day' : list.length ? 'charge-day' : undefined}
+                className={`tabular relative flex aspect-square flex-col items-center justify-center rounded-2xl text-sm transition ${isSel ? 'ring-2 ring-accent' : key === today ? 'ring-1 ring-white/40' : ''} ${list.length ? 'font-bold' : 'text-slate-500'}`}
+                style={{ background: tint }}
               >
-                {d}
-                {list.length > 0 && (
-                  <span className="mt-0.5 flex gap-0.5">
-                    {hasHome && <span className="h-1.5 w-1.5 rounded-full bg-home shadow-glow-home" />}
-                    {hasFast && <span className="h-1.5 w-1.5 rounded-full bg-fast shadow-glow-fast" />}
-                  </span>
-                )}
-                {list.length > 1 && (
-                  <span className="absolute end-0.5 top-0.5 rounded-full bg-white/15 px-1 text-[0.55rem] leading-tight">{list.length}</span>
-                )}
+                <span>{d}</span>
+                {list.length > 0 && <span className="text-xs font-bold leading-none" style={{ color: type === 'fast' ? C.fast : C.home }}>{num(kwh, kwh >= 10 ? 0 : 1)}</span>}
+                {cycleStart && <span className="absolute top-1 h-1.5 w-1.5 rounded-full bg-accent" title={t('cycle_start')} />}
               </button>
             );
           })}
         </div>
 
-        <div className="mt-4 flex justify-center gap-5 text-xs text-slate-400">
-          <span className="inline-flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-home" /> {t('legend_home')}</span>
-          <span className="inline-flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-fast" /> {t('legend_fast')}</span>
+        <div className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-1 text-sm text-slate-400">
+          <span className="inline-flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full" style={{ background: C.home }} /> {t('legend_home')}</span>
+          <span className="inline-flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full" style={{ background: C.fast }} /> {t('legend_fast')}</span>
+          <span className="inline-flex items-center gap-1.5"><i className="h-2 w-2 rounded-full bg-accent" /> {t('cycle_start')}</span>
         </div>
       </section>
 
       {selected && (
-        <section className="space-y-2.5">
-          <h3 className="tabular px-1 text-sm font-bold text-slate-300">
-            {t('sel_title', { d: selected, v: fix(selList.reduce((s, c) => s + c.totalCost, 0), 2), c: currency })}
-          </h3>
-          {selList.map((c) => (
-            <ChargeItem key={c.id} c={c} currency={currency} eff={effById.get(c.id) ?? null} onEdit={onEdit} onDelete={onDelete} />
-          ))}
+        <section className="space-y-2.5" data-testid="day-charges">
+          <h3 className="tabular px-1 text-base font-bold"><bdi dir="ltr">{formatDate(selected)}</bdi></h3>
+          <ChargeList charges={selList} numbers={selNumbers} settings={settings} onOpen={onOpen} />
         </section>
       )}
     </div>
   );
 }
+

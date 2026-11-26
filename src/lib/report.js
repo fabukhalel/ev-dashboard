@@ -3,7 +3,7 @@
 
 import { sortChrono } from './calc.js';
 import { periodStats, billResult } from './analysis.js';
-import { FONT_STACKS } from './theme.js';
+import { fontOf } from './theme.js';
 import { formatDate, fix, num, todayStr } from './format.js';
 
 const W = 1240;
@@ -63,7 +63,7 @@ export function makePdf(pages) {
 
 export async function buildReportPdf({ charges, bills, readings, settings, period, t, lang }) {
   const rtl = lang === 'ar';
-  const family = FONT_STACKS[settings.fontFamily] || FONT_STACKS.tajawal;
+  const family = fontOf(settings);
   if (document.fonts && document.fonts.load) {
     try {
       await Promise.all([`400 24px ${family}`, `800 24px ${family}`].map((f) => document.fonts.load(f, 'أ0Aa')));

@@ -29,26 +29,32 @@ const initialTab = () => {
 /** حالة الواجهة: التبويب الحالي، الفلاتر، والنوافذ المفتوحة */
 function useUiState() {
   const [tab, setTab] = useState(initialTab);
-  const [month, setMonth] = useState('all'); // 'all' | 'YYYY-MM'
   const [typeFilter, setTypeFilter] = useState('all'); // all | home | fast
   const [chargesView, setChargesView] = useState('list'); // list | calendar
   const [form, setForm] = useState({ open: false, charge: null });
-  const [sheet, setSheet] = useState(null); // 'period' | 'odo' | 'customize' | null
+  const [sheet, setSheet] = useState(null); // 'odo' | 'customize' | null
+  const [detail, setDetail] = useState(null); // الشحنة المعروضة في نافذة التفاصيل
+  const [periodOffset, setPeriodOffset] = useState(0); // 0 = الفترة الحالية، -1 السابقة...
+  const [settingsPage, setSettingsPage] = useState(null); // صفحة فرعية في الإعدادات
 
   // التبويب الحالي في عنوان الصفحة (#list ...) حتى يبقى بعد إعادة التحميل
   useEffect(() => {
     try { history.replaceState(history.state, '', `#${tab}`); } catch { /* بيئة بلا History */ }
     window.scrollTo({ top: 0 });
+    setSettingsPage(null);
   }, [tab]);
 
   return useMemo(() => ({
-    tab, setTab, month, setMonth, typeFilter, setTypeFilter, chargesView, setChargesView,
+    tab, setTab, typeFilter, setTypeFilter, chargesView, setChargesView,
     form,
     openAdd: () => setForm({ open: true, charge: null }),
-    openEdit: (c) => setForm({ open: true, charge: c }),
+    openEdit: (c) => { setDetail(null); setForm({ open: true, charge: c }); },
     closeForm: () => setForm({ open: false, charge: null }),
     sheet, openSheet: setSheet, closeSheet: () => setSheet(null),
-  }), [tab, month, typeFilter, chargesView, form, sheet]);
+    detail, openDetail: setDetail, closeDetail: () => setDetail(null),
+    periodOffset, setPeriodOffset,
+    settingsPage, setSettingsPage,
+  }), [tab, typeFilter, chargesView, form, sheet, detail, periodOffset, settingsPage]);
 }
 
 export function StoreProvider({ boot, children }) {
@@ -62,12 +68,12 @@ export function StoreProvider({ boot, children }) {
   const [settingsKey, setSettingsKey] = useState(0);
 
   // ---- رسالة قصيرة أسفل الشاشة ----
-  const [toast, setToast] = useState('');
+  const [toast, setToast] = useState({ message: '', action: null });
   const toastTimer = useRef(null);
-  const notify = useCallback((msg) => {
-    setToast(msg);
+  const notify = useCallback((message, action = null) => {
+    setToast({ message, action });
     clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(''), 2400);
+    toastTimer.current = setTimeout(() => setToast({ message: '', action: null }), action ? 5000 : 2400);
   }, []);
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
@@ -94,12 +100,6 @@ export function StoreProvider({ boot, children }) {
     maybeAutoBackup(boot.initial, { fs: boot.fs, store: boot.backend }).catch(() => {}).finally(refreshAutoBackups);
   }, [boot, refreshAutoBackups]);
 
-  // إن حُذفت كل شحنات الشهر المحدد في الفلتر نعود إلى "الكل"
-  const { month, setMonth } = ui;
-  useEffect(() => {
-    if (month !== 'all' && !state.charges.some((c) => c.date.startsWith(month))) setMonth('all');
-  }, [month, setMonth, state.charges]);
-
   // ---- العمليات (تحفظ + تعرض رسالة + تطلب تأكيداً عند الحاجة) ----
   const actions = useMemo(() => {
     const cur = () => stateRef.current;
@@ -115,11 +115,15 @@ export function StoreProvider({ boot, children }) {
       notify(t('t_restored', { n: data.charges.length }));
     };
     const deleteCharge = (id) => {
+      const old = cur().charges.find((c) => c.id === id);
       dispatch({ type: 'charge/delete', id });
       ui.closeForm();
+      ui.closeDetail();
       haptic('medium');
-      notify(t('t_deleted'));
+      // «تراجع» يعيد الشحنة كما كانت (C3)
+      notify(t('t_deleted'), old ? { label: t('undo'), run: () => { dispatch({ type: 'charge/restore', charge: old }); notify(t('t_restored_one')); } } : null);
     };
+    const markBackup = () => changeSettings({ lastBackupAt: Date.now() });
 
     return {
       changeSettings,
@@ -132,6 +136,11 @@ export function StoreProvider({ boot, children }) {
       deleteCharge,
       requestDelete: async (c) => {
         if (await ask(t('confirm_del_one'), t('delete'))) deleteCharge(c.id);
+      },
+      adoptOldTiers: async () => {
+        if (!(await ask(t('recalc_q'), t('recalc_btn')))) return;
+        dispatch({ type: 'charges/adoptOld' });
+        notify(t('t_recalc'));
       },
       saveBill: (b) => {
         dispatch({ type: 'bill/save', bill: b });
@@ -180,6 +189,7 @@ export function StoreProvider({ boot, children }) {
       exportBackup: async () => {
         try {
           await saveFile(`ev-backup-${stamp()}.json`, makeBackup(cur()), 'application/json');
+          markBackup();
           notify(t('t_backup'));
         } catch {
           notify(t('t_backup_fail'));
@@ -195,6 +205,7 @@ export function StoreProvider({ boot, children }) {
       autoBackupNow: async () => {
         try {
           const r = await maybeAutoBackup(cur(), { fs: boot.fs, store: boot.backend, force: true });
+          if (r.written) markBackup();
           notify(r.written ? t('t_backup') : t('ab_nothing'));
         } catch {
           notify(t('t_backup_fail'));
@@ -218,17 +229,19 @@ export function StoreProvider({ boot, children }) {
       loadDemo: async () => {
         if (hasRealData() && !(await ask(t('confirm_demo'), t('replace')))) return;
         dispatch({ type: 'charges/demo' });
-        ui.setMonth('all');
+        ui.setPeriodOffset(0);
         notify(t('t_demo'));
       },
       clearAll: async () => {
+        // تأكيد مزدوج (S5)
         if (!(await ask(t('confirm_clear'), t('delete_all')))) return;
+        if (!(await ask(t('confirm_clear2', { n: cur().charges.length }), t('delete_all_final')))) return;
         dispatch({ type: 'charges/clear' });
         notify(t('t_cleared'));
       },
       startFresh: () => {
         dispatch({ type: 'charges/clear' });
-        ui.setMonth('all');
+        ui.setPeriodOffset(0);
         notify(t('t_fresh'));
       },
       setPhoto: async (file) => {

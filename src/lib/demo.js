@@ -59,3 +59,31 @@ export function makeDemoCharges(capacity = 60.48, prices = {}, today = new Date(
   }
   return out;
 }
+
+const DEMO_STATIONS = ['محطة المدينة', 'محطة الجامعة', 'مول العبدلي'];
+export const isDemoOdo = (o) => typeof o.id === 'string' && o.id.startsWith('demo-');
+
+/**
+ * بيانات تجريبية بشكل التصميم الجديد: الشحن المنزلي بالشرائح التلقائية،
+ * والعداد قراءات منفصلة في أول شحنة من كل شهر بدل قراءة مع كل شحنة.
+ */
+export function makeDemo(settings, today = new Date(), retier = (c) => c) {
+  const raw = makeDemoCharges(settings.capacity, settings, today);
+  const odos = [];
+  let lastMonth = '';
+  let n = 0;
+  const charges = raw.map((c) => {
+    const m = c.date.slice(0, 7);
+    if (m !== lastMonth) {
+      odos.push({ id: `demo-${c.date}`, date: c.date, km: c.odometer });
+      lastMonth = m;
+    }
+    const base = { ...c, odometer: null, time: '00:00' };
+    if (c.type === 'home') return { ...base, tierSource: 'auto', tier: null };
+    return { ...base, note: DEMO_STATIONS[n++ % DEMO_STATIONS.length] };
+  });
+  // آخر قراءة عند آخر شحنة حتى تظهر المسافة للفترة الحالية
+  const last = raw[raw.length - 1];
+  if (last && !odos.some((o) => o.date === last.date)) odos.push({ id: `demo-${last.date}`, date: last.date, km: last.odometer });
+  return { charges: retier(charges), odos };
+}

@@ -10,8 +10,8 @@ const D = {
     tab_home: 'الرئيسية', tab_list: 'الشحنات', tab_settings: 'الإعدادات',
     nav_aria: 'التنقل الرئيسي',
 
-    all_months: 'كل الأشهر', filter_month: 'فلتر الشهر',
-    export_csv_title: 'تصدير CSV',
+
+
     // الصفحة الرئيسية
     demo_banner: 'أمثلة تجريبية، وليست بياناتك. أول شحنة تضيفها تستبدلها.',
     start_fresh: 'ابدأ بسجل فارغ',
@@ -30,55 +30,55 @@ const D = {
     ch_empty: 'أضف شحنات لتظهر المقارنة', ch_aria: 'رسم بياني لمقارنة الأشهر',
     // القوائم
     list_empty_title: 'لا توجد شحنات', list_empty_hint: 'سجّل أول شحنة لتبدأ المتابعة والتحليل.',
-    per_kwh: '{v} / kWh',
+
     // التقويم
     prev_month: 'الشهر السابق', next_month: 'الشهر التالي', cal_aria: 'تقويم الشحن',
-    cal_stats: '{n} شحنة · {h} يوم منزلي · {f} يوم سريع',
-    legend_home: 'شحن منزلي', legend_fast: 'شحن سريع', sel_title: 'شحنات {d} · إجمالي {v} {c}',
+
+    legend_home: 'شحن منزلي', legend_fast: 'شحن سريع', 
     day_aria: '{d} {m}', day_aria_n: '{d} {m}، {n} شحنة',
     // الرحلات
 
 eg: 'مثال: {v}',
     // نموذج الشحنة
-    form_edit: 'تعديل الشحنة', charger_type: 'نوع الشاحن', date: 'التاريخ',
-    soc_before: 'الشحن قبل (%)', soc_after: 'الشحن بعد (%)',
+    form_edit: 'تعديل الشحنة', date: 'التاريخ',
+
     energy_auto: 'الطاقة المكتسبة (تلقائي من SoC × {cap} kWh)',
-    energy_manual: 'تعديل يدوي (اختياري، من شاشة الشاحن مثلاً)',
-    energy_manual_ph: 'اتركه فارغاً للحساب التلقائي',
-    energy_max_hint: 'الحد الأقصى {cap} kWh (سعة البطارية)',
-    cost_input: 'إدخال التكلفة', by_price: 'بسعر الكيلوواط', by_total: 'بالمبلغ الكلي',
-    price_c: 'سعر kWh ({c})', total_auto: 'المبلغ الكلي (تلقائي)', total_c: 'المبلغ الكلي ({c})', price_auto: 'سعر kWh (تلقائي)',
-    odo_label: 'قراءة العداد (كم) — اختياري', odo_ph: 'تُستخدم لحساب الكفاءة والمسافة',
+
+
+
+    by_price: 'بسعر الكيلوواط', by_total: 'بالمبلغ الكلي',
+
+
     note: 'ملاحظات', note_ph: 'اسم المحطة، مثلاً', save_charge: 'حفظ الشحنة', confirm_delete: 'تأكيد الحذف',
     err_date: 'اختر تاريخاً صحيحاً', err_soc_missing: 'أدخل نسبة الشحن قبل وبعد',
     err_soc_range: 'النسبة يجب أن تكون بين 0 و 100', err_soc_order: 'نسبة الشحن بعد يجب أن تكون أكبر من قبل',
     err_energy: 'تعذر احتساب الطاقة', err_energy_cap: 'الطاقة تتجاوز سعة البطارية ({cap} kWh)',
     err_cost: 'أدخل التكلفة', err_odo: 'قراءة العداد غير صحيحة',
     // الإعدادات
-    s_appearance: 'المظهر واللغة', s_lang: 'اللغة', lang_ar: 'العربية', lang_en: 'English',
+    s_lang: 'اللغة', lang_ar: 'العربية', lang_en: 'English',
     s_theme: 'المظهر', theme_system: 'تلقائي', theme_dark: 'داكن', theme_light: 'نهاري',
 
-    s_car: 'بيانات السيارة', car_name: 'الاسم / الماركة', car_model: 'الموديل',
+    car_name: 'الاسم / الماركة', car_model: 'الموديل',
     capacity_label: 'سعة البطارية الإجمالية (kWh)',
     capacity_hint: 'تُحسب منها الطاقة من نسبة الشحن، وهي الحد الأعلى للطاقة في الشحنة الواحدة. الشحنات القديمة تحتفظ بالسعة وقت تسجيلها.',
     car_image: 'صورة السيارة', img_auto: 'تلقائي حسب الموديل',
-    style_sedan: 'سيدان', style_suv: 'دفع رباعي', style_hatch: 'هاتشباك', style_pickup: 'بيك أب',
+
     upload_photo: 'رفع صورة', remove_photo: 'إزالة الصورة',
     img_hint: 'رسم مولَّد بالكود حسب الموديل (لـ BYD Yuan Plus رسم مفصّل) وليس صورة فوتوغرافية. ارفع صورة سيارتك الحقيقية، أو ضع الملف public/car.jpg في المشروع.',
     photo_fail: 'تعذر قراءة الصورة',
-    s_pricing: 'الأسعار والتقديرات الافتراضية', currency_label: 'رمز العملة',
-    home_price: 'سعر kWh المنزلي', fast_price: 'سعر kWh السريع',
+    currency_label: 'رمز العملة',
+    fast_price: 'سعر kWh السريع',
     reset_defaults: 'استعادة الإعدادات الافتراضية',
-    s_entry: 'خيارات الإدخال', manual_energy: 'السماح بإدخال الطاقة يدوياً',
-    manual_energy_hint: 'يظهر حقل الطاقة اليدوي في نموذج الشحنة، ولا يمكن أن يتجاوز سعة البطارية.',
-    s_home: 'الصفحة الرئيسية', customize_home: 'تخصيص الصفحة الرئيسية',
-    s_data: 'البيانات والتصدير', data_hint: 'بياناتك محفوظة على هذا الجهاز فقط ({n} شحنة). خذ نسخة احتياطية دورياً.',
+
+
+    customize_home: 'تخصيص الصفحة الرئيسية',
+
     export_csv: 'تصدير السجلات CSV', backup: 'نسخة احتياطية', restore: 'استعادة نسخة',
-    s_tools: 'أدوات', load_demo: 'تحميل بيانات تجريبية للمعاينة', clear_all: 'حذف كل الشحنات',
-    s_about: 'حول التطبيق', dev_by: 'Developed by Eng. Fadi Abu Khalel',
+    load_demo: 'تحميل بيانات تجريبية للمعاينة', clear_all: 'حذف كل الشحنات',
+    dev_by: 'Developed by Eng. Fadi Abu Khalel',
     // التخصيص
     cust_title: 'تخصيص الصفحة الرئيسية', cust_hint: 'رتّب الأقسام بالأسهم وأخفِ ما لا تحتاجه.',
-move_up: 'تحريك لأعلى', move_down: 'تحريك لأسفل',
+
     show: 'إظهار', hide: 'إخفاء', cust_reset: 'استعادة الترتيب الافتراضي',
 
     // رسائل
@@ -88,7 +88,7 @@ move_up: 'تحريك لأعلى', move_down: 'تحريك لأسفل',
     discard_q: 'تجاهل التعديلات؟', discard: 'تجاهل', keep_editing: 'متابعة',
     back_again: 'اضغط رجوع مرة أخرى للخروج',
     save_failed: 'تعذر حفظ آخر تعديل على الجهاز. خذ نسخة احتياطية الآن.', save_failed_btn: 'تصدير نسخة الآن',
-    ab_title: 'النسخ التلقائية', ab_last: 'آخر نسخة: {d}', ab_none: 'لا توجد نسخة بعد',
+    ab_title: 'النسخ التلقائية', 
     ab_hint: 'تُحفظ نسخة كل أسبوع على الهاتف (آخر 5). شاركها إلى Drive لتكون خارج الهاتف.',
     ab_share: 'مشاركة', ab_restore: 'استعادة', ab_now: 'خذ نسخة تلقائية الآن', ab_nothing: 'لا توجد شحنات لنسخها',
     t_demo: 'تم تحميل بيانات تجريبية', t_cleared: 'تم حذف كل الشحنات', t_fresh: 'بدأت بسجل فارغ',
@@ -104,77 +104,77 @@ move_up: 'تحريك لأعلى', move_down: 'تحريك لأسفل',
     m_eff: 'الكفاءة',
     date_ph: 'يوم/شهر/سنة', pick_date: 'اختيار من التقويم', tab_bill: 'الفاتورة',
     // الفترة
-    period_month: 'الشهر الحالي', period_prev: 'الشهر السابق', period_custom: 'فترة مخصصة', period_all: 'كل السجل',
-    sum_empty: 'لا توجد شحنات ضمن هذه الفترة', sec_summary: 'ملخص الفترة',
-    s_period: 'فترة الاحتساب', period_mode: 'الفترة المعروضة في الصفحة الرئيسية',
+    period_prev: 'الفترة السابقة', period_custom: 'فترة مخصصة', 
+    sum_empty: 'لا توجد شحنات ضمن هذه الفترة', 
+
     period_from: 'من', period_to: 'إلى',
-    period_hint: 'تُحسب عليها إجمالي الطاقة والتكلفة في الصفحة الرئيسية. اكتب التاريخ بصيغة يوم/شهر/سنة مثل 03/10/2026.',
+
     period_bad: 'حدّد تاريخ بداية ونهاية صحيحين (البداية قبل النهاية أو تساويها)، وإلا تُعرض بيانات الشهر الحالي.',
     // الألوان والخط
-    s_colors: 'الألوان', col_accent: 'اللون الرئيسي', col_home: 'الشحن المنزلي', col_fast: 'الشحن السريع', col_car: 'لون السيارة',
-    col_reset: 'استعادة ألوان الثيم', col_pal: 'مجموعات جاهزة', col_custom: 'ألوان مخصصة',
+    col_car: 'لون السيارة',
+
     pal_default: 'الافتراضي', pal_blue: 'أزرق', pal_red: 'أحمر', pal_gold: 'ذهبي', pal_mono: 'رمادي',
-    s_fontfamily: 'نوع الخط', font_tajawal: 'Tajawal', font_cairo: 'Cairo', font_almarai: 'Almarai', font_system: 'خط الجهاز',
+    font_tajawal: 'Tajawal', font_cairo: 'Cairo', font_almarai: 'Almarai', font_system: 'خط الجهاز',
     font_size_val: 'حجم الخط {v}', font_sample: 'نص تجريبي: شحنة 25.5 kWh — 3.4 د.أ',
-    style_yuan: 'BYD Yuan Plus (رسم مفصّل)',
+
     // أداة الفاتورة
-    bill_title: 'أثر الشحن على فاتورة الكهرباء',
-    bill_intro: 'عند وصول الفاتورة سجّل الفترة التي تغطيها واستهلاكها الكلي (kWh). يحسب التطبيق شحنات المنزل في تلك الفترة وأثرها على الفاتورة حسب التعرفة المتدرجة.',
+
+
     bill_from: 'بداية فترة الفاتورة', bill_to: 'نهاية فترة الفاتورة', bill_total: 'استهلاك المنزل الكلي في الفاتورة (kWh)',
     bill_loss: 'فقد الشاحن % (اختياري)',
     bill_loss_hint: 'الطاقة المسجلة هي ما وصل البطارية، وما سُحب من عداد المنزل أعلى عادةً بنحو 5–15% بسبب فقد الشاحن. اتركه فارغاً لاستخدام الأرقام كما هي.',
 
-    bill_days: 'مدة الفترة {d} يوماً',
+
     bill_bad_dates: 'تاريخ البداية يجب أن يسبق النهاية أو يساويها', bill_bad_total: 'أدخل استهلاكاً أكبر من صفر',
-    bill_ev: 'شحن السيارة المنزلي في الفترة', bill_ev_sub: '{n} شحنة منزلية', bill_ev_loss: 'بعد إضافة الفقد: {v} kWh',
-    bill_no_ev: 'لا توجد شحنات منزلية مسجّلة ضمن هذه الفترة',
+
+
     bill_capped: 'طاقة شحن السيارة ({ev} kWh) أكبر من استهلاك المنزل المُدخل، فاحتُسب كل الاستهلاك على السيارة. تحقق من الأرقام والتواريخ.',
-    bill_base: 'استهلاك المنزل بدون السيارة', bill_without: 'الفاتورة بدون السيارة', bill_with: 'الفاتورة مع السيارة',
+    bill_with: 'الفاتورة مع السيارة',
     bill_impact: 'أثر السيارة على الفاتورة', bill_share: 'تشكّل السيارة {v}% من قيمة الفاتورة',
     bill_eff: 'متوسط كلفة kWh للسيارة: {v} {c}', bill_break: 'توزيع طاقة السيارة على الشرائح',
     tier_range: '{a} – {b} kWh', tier_above: 'أكثر من {a} kWh', fils: 'فلس',
-    tariff_title: 'التعرفة', tariff_plan: 'فئة التعرفة', plan_sub: 'مدعومة', plan_unsub: 'غير مدعومة', plan_custom: 'مخصصة',
+    tariff_title: 'التعرفة', plan_sub: 'مدعومة', plan_unsub: 'غير مدعومة', plan_custom: 'مخصصة',
     tariff_src: 'الأسعار الافتراضية هي تعرفة القطاع المنزلي المنشورة من هيئة تنظيم قطاع الطاقة والمعادن والسارية من 1/1/2025. التعرفة تتغير بقرار رسمي، فتأكد من فاتورتك.',
     tier_limit: 'حتى (kWh/شهر)', tier_rate: 'السعر (فلس/kWh)', tier_last: 'ما فوق ذلك',
     tariff_extra: 'رسوم إضافية (فلس/kWh)',
     tariff_extra_hint: 'اختياري: مثل بند فرق أسعار الوقود الظاهر في فاتورتك. يُضاف على طاقة السيارة فقط. اتركه 0 إن لم ترد ذلك.',
-    tariff_scale: 'حدود الشرائح شهرية، وفاتورتك تغطي {m} شهر فتُضاعَف الحدود.',
-    tariff_unmodeled: 'لا يشمل الحساب الدعم النقدي الثابت ولا المقطوعية الدنيا ولا الضرائب الأخرى، فقد يختلف عن فاتورتك بمقدار بسيط.',
-    tariff_reset: 'استعادة الأسعار الرسمية',
+
+
+
     // ===== جولة التعديلات 5 =====
     tab_analysis: 'التحليل',
     hello: 'أهلاً بك',
     hello_name: 'أهلاً، {name}',
-    battery_only: 'بطارية {cap} kWh',
-    period_change_long: 'تغيير الفترة',
+
+
     period_kind: 'نوع الفترة',
     kind_month: 'شهر عادي',
-    kind_bill: 'دورة الفاتورة',
-    no_bills_toast: 'أضف فاتورة أولاً لاستخدام دورة الفاتورة',
-    hero_distance: 'المسافة',
-    hero_add_odo: 'سجّل قراءة عداد السيارة لحساب المسافة',
-    sec_charges: 'آخر الشحنات',
+
+
+
+
+
     view_all_n: 'عرض الكل ({n})',
     view_list: 'قائمة',
     view_calendar: 'تقويم',
-    period_sheet_title: 'اختيار الفترة',
-    period_bills: 'دورات الفاتورة',
-    period_no_bills: 'لا توجد فواتير مسجلة بعد. أضف فاتورة من تبويب «الفاتورة».',
-    an_title: 'تحليل الفترات',
-    an_months: 'الأشهر',
-    an_bills: 'دورات الفاتورة',
+
+
+
+
+
+
     m_distance: 'المسافة',
-    an_no_bills: 'سجّل فاتورة واحدة على الأقل من تبويب «الفاتورة» لتظهر دورات الفاتورة هنا.',
-    an_est_hint: 'المسافة والكفاءة تُحسبان من قراءات عداد السيارة. الرمز ≈ يعني تقديراً نسبياً بين قراءتين أو داخل نطاق القراءات المتاحة فقط.',
+
+
     an_table: 'تفاصيل الفترات',
-    an_cost_km: 'كلفة الكيلومتر',
-    bill_impact_short: 'أثر السيارة',
+
+
     ch_no_odo: 'سجّل قراءتين على الأقل لعداد السيارة لعرض المسافة والكفاءة',
 
     odo_title: 'قراءات عداد السيارة',
-    odo_add: 'إضافة قراءة',
+
     odo_add_long: 'تسجيل قراءة عداد السيارة',
-    odo_hint: 'تُحسب المسافة في أي فترة من الفرق بين قراءتين عند حدّيها، وتُقدَّر نسبياً (≈) إن لم توجد قراءة عند الحد. القراءات المدخلة داخل الشحنات ({n}) تُحتسب أيضاً.',
+
     odo_empty: 'لا توجد قراءات مسجّلة يدوياً بعد',
     odo_add_title: 'قراءة عداد السيارة',
     odo_add_hint: 'سجّل قراءة العداد في بداية الفترة وأخرى في نهايتها (أو أي تاريخ بينهما) ليحسب التطبيق المسافة وكفاءة الاستهلاك.',
@@ -188,19 +188,19 @@ move_up: 'تحريك لأعلى', move_down: 'تحريك لأسفل',
     bill_edit: 'تعديل الفاتورة',
     bill_save: 'حفظ الفاتورة',
     bill_form_hint: 'أدخل الفترة التي تغطيها الفاتورة واستهلاك المنزل الكلي المكتوب عليها. المبلغ اختياري ويُستخدم للمقارنة مع الحساب التقديري.',
-    bill_amount: 'مبلغ الفاتورة (اختياري)',
+
     bill_bad_amount: 'المبلغ غير صحيح',
-    bill_none: 'سجّل أول فاتورة لتحسب أثر السيارة عليها.',
-    bill_list: 'الفواتير المسجلة',
-    bill_approx: 'تقريبي: مدة الفترة ليست شهراً كاملاً',
+
+
+
     bill_diff: 'الحساب التقديري ({est} {c}) يختلف عن مبلغ فاتورتك ({real} {c}). قد تكون التعرفة أو الرسوم تغيّرت، فعدّلها من قسم التعرفة.',
     confirm_del_bill: 'حذف هذه الفاتورة؟',
     t_bill_saved: 'تم حفظ الفاتورة ✓',
     t_bill_deleted: 'تم حذف الفاتورة',
-    s_profile: 'الملف الشخصي',
+
     user_name: 'اسمك',
     user_name_ph: 'مثال: فادي',
-    user_name_hint: 'يظهر في أعلى الصفحة الرئيسية بعد «أهلاً». اتركه فارغاً لعرض «أهلاً بك».',
+
     export_pdf: 'تصدير تقرير PDF',
     t_pdf: 'تم إنشاء تقرير PDF',
     t_pdf_fail: 'تعذر إنشاء ملف PDF',
@@ -220,6 +220,72 @@ move_up: 'تحريك لأعلى', move_down: 'تحريك لأسفل',
     kpi_eff: 'الكفاءة',
     kpi_costkm: 'كلفة الكيلومتر',
     rep_odo_note: '≈ تقديري من قراءات عداد السيارة',
+    // ===== التصميم الجديد 6أ =====
+    kind_cycle: 'دورة الفاتورة', kind_custom: 'مخصص', apply: 'تطبيق', period_next: 'الفترة التالية',
+    preset_last7: 'آخر 7 أيام', preset_last30: 'آخر 30 يوماً', preset_all: 'كل السجل',
+    cycle_start: 'بداية الدورة', cycle_title: 'دورة {a} – {b}', current: 'الحالية',
+    day_n_of_m: 'اليوم {n} من {m}', days: 'يوم', back: 'رجوع', avg: 'المتوسط',
+    today: 'اليوم', yesterday: 'أمس', details: 'التفاصيل', undo: 'تراجع', t_restored_one: 'أُعيدت الشحنة',
+    tier: 'الشريحة', tier_auto: 'تلقائي حسب اليوم', tier_manual: 'اخترتها يدوياً',
+    tier_low: 'منخفضة', tier_mid: 'متوسطة', tier_high: 'مرتفعة',
+    tier_low_s: 'منخفضة', tier_mid_s: 'متوسطة', tier_high_s: 'مرتفعة',
+    tier_low_full: 'الشريحة المنخفضة', tier_mid_full: 'الشريحة المتوسطة', tier_high_full: 'الشريحة المرتفعة',
+    tier_under: 'حتى {a} kWh', tier_over: 'فوق {a} kWh', tier_between: '{a} – {b} kWh', today_tier: 'شريحة اليوم:',
+    // تفاصيل الشحنة والنموذج
+    detail_fast: 'شحنة سريعة', detail_home: 'شحنة منزلية',
+    detail_nth_month: 'الشحنة رقم {n} في الشهر', detail_nth_cycle: 'الشحنة رقم {n} في الدورة',
+    energy_from_charger: 'الطاقة مأخوذة من شاشة الشاحن', price_kwh: 'سعر الكيلوواط', station: 'المحطة',
+    form_new: 'شحنة جديدة', battery: 'البطارية', soc_before_s: 'قبل', soc_after_s: 'بعد',
+    warn_soc_prev: 'آخر شحنة انتهت عند {a}%، والنسبة «قبل» أعلى منها. تأكد من الرقم.',
+    energy_charger: 'الطاقة من شاشة الشاحن', energy: 'الطاقة', energy_soc_est: 'تقدير من نسبة البطارية: {v} kWh',
+    price_recorded: 'السعر المسجّل سابقاً: {v}', price: 'السعر للكيلوواط', station_note: 'المحطة',
+    note_opt: 'ملاحظة (اختياري)', station_ph: 'اسم المحطة',
+    swipe_hint: 'اسحب الشحنة جانباً لحذفها', drag: 'اسحب لتغيير الترتيب', recent_count: 'عدد الشحنات',
+    // الرئيسية
+    hero_energy: 'طاقة الفترة', vs_prev_short: 'عن السابق',
+    vs_prev_cycle: 'عن الدورة السابقة', vs_prev_month: 'عن الشهر السابق', vs_prev_period: 'عن الفترة السابقة',
+    forecast_cycle: 'المتوقع لنهاية الدورة', forecast_period: 'المتوقع لنهاية الشهر',
+    last_today: 'آخر شحنة اليوم · {p}%', last_ago: 'آخر شحنة قبل {d} يوم · {p}%', last_ago_one: 'آخر شحنة أمس · {p}%',
+    charges_count: 'عدد الشحنات', charges_word: 'شحنة', charges_word_one: 'شحنة', avg_per_charge: 'المعدل للشحنة',
+    bill_card_title: 'أثر السيارة على فاتورة هذه الدورة', backup_stale: 'آخر نسخة احتياطية قبل {d} يوماً. احفظ نسخة الآن',
+    backup_never: 'لم تحفظ أي نسخة احتياطية بعد. احفظ نسخة الآن',
+    sec_hero: 'البطاقة الرئيسية', sec_stats: 'التكلفة وعدد الشحنات', sec_bill: 'بطاقة الفاتورة', sec_recent: 'آخر الشحنات',
+    // الشحنات والتحليل
+    view_kind: 'طريقة العرض', filter_type: 'نوع الشحن', an_metric: 'المقياس', daily_avg: 'المعدل اليومي',
+    odo_today: 'قراءة اليوم', odo_hint_new: 'سجّل قراءة العداد مرة في بداية كل شهر أو دورة، ويحسب التطبيق المسافة والاستهلاك لكل فترة.',
+    // الفاتورة
+    bill_amount_c: 'مبلغ الفاتورة ({c}) اختياري', bill_recorded: 'فاتورة مسجّلة', bill_not_recorded: 'لم تُسجّل فاتورتها',
+    bill_ev_kwh: 'طاقة السيارة المنزلية', bill_estimate: 'التقدير', bill_est_vs_real: 'التقدير مقابل الفاتورة الفعلية',
+    bill_record: 'سجّل الفاتورة', bill_intro_new: 'كل دورة تبدأ من يوم بداية الدورة في الإعدادات. سجّل فاتورتك عند وصولها لتقارن التقدير بالمبلغ الفعلي.',
+    bill_share_chart: 'حصة السيارة من الفاتورة',
+    // الإعدادات
+    set_car: 'السيارة', set_car_sub: 'الاسم والبطارية والصورة', set_power: 'الكهرباء والأسعار', set_power_sub: 'الشرائح ودورة الفاتورة والشحن السريع',
+    set_look: 'المظهر', set_look_sub: 'الألوان والوضع الليلي والخط واللغة', set_data: 'البيانات', set_data_sub: 'النسخ الاحتياطي والتصدير والحذف',
+    set_about: 'حول التطبيق', set_about_sub: 'الإصدار والمطوّر والخصوصية',
+    car_image_opt: 'صورة السيارة (اختياري)', tariff_from: 'تُطبّق الأسعار من تاريخ',
+    tariff_from_hint: 'الشحنات قبل هذا التاريخ تحتفظ بأسعارها المسجّلة. اتركه فارغاً لتطبيق الأسعار على كل الشحنات.',
+    cycle_settings: 'دورة الفاتورة والشرائح', cycle_day: 'يوم بداية الدورة', cycle_day_hint: 'اليوم الذي تبدأ فيه قراءة عدّاد الكهرباء كل شهر (من 1 إلى 28).',
+    tier_days_low: 'أيام الشريحة المنخفضة في أول الدورة', tier_days_high: 'أيام الشريحة المرتفعة في آخر الدورة',
+    tier_days_hint: 'يختار التطبيق الشريحة حسب يوم الدورة، ويمكنك رفعها يدوياً لأي شحنة. الشريحة لا تنزل بعد رفعها في نفس الدورة.',
+    more_prices: 'أسعار الشحن السريع وغيرها',
+    recalc_hint: 'عندك {n} شحنة منزلية قديمة بسعر ثابت. يمكن إعادة حسابها بنظام الشرائح الجديد.',
+    recalc_btn: 'إعادة حساب الشحنات القديمة', recalc_q: 'ستُعاد تكلفة الشحنات المنزلية القديمة حسب الشريحة. متابعة؟',
+    t_recalc: 'أُعيد حساب الشحنات',
+    s_palette: 'لون التطبيق', pal_lime: 'ليموني', pal_lime_sub: 'أسود وأخضر ليموني', pal_teal: 'تركوازي', pal_teal_sub: 'كحلي وتركوازي',
+    s_backup: 'النسخ الاحتياطي', s_export: 'التصدير', s_danger: 'منطقة الحذف',
+    backup_status: 'آخر نسخة احتياطية', backup_last: 'بتاريخ {d}', backup_none: 'لا توجد نسخة بعد',
+    confirm_clear2: 'سيُحذف {n} شحنة نهائياً ولا يمكن التراجع. هل أنت متأكد؟', delete_all_final: 'احذف الكل نهائياً',
+    // حول التطبيق
+    app_name: 'لوحة الشحن الذكية', version_build: 'الإصدار {v} · البناء {b}', released_on: 'تاريخ البناء {d}',
+    whats_new: 'ما الجديد', whats_new_sub: 'التغييرات في هذا الإصدار',
+    whats_new_list: 'تصميم جديد بلونين: ليموني وتركوازي، فاتح وداكن|فترات بالشهر أو بدورة الفاتورة أو فترة مخصصة|اختيار الشريحة تلقائياً حسب يوم الدورة مع إمكانية رفعها|نموذج شحنة أبسط مع اليوم وأمس واقتراح السعر|إعدادات مقسّمة إلى 5 صفحات وصفحة «حول التطبيق»|تذكير بالنسخ الاحتياطي والتراجع عن الحذف',
+    upd_title: 'التحقق من التحديثات', upd_sub: 'اضغط للتحقق من وجود إصدار أحدث', upd_loading: 'جارٍ التحقق…',
+    upd_none: 'لا توجد إصدارات منشورة بعد', upd_latest: 'لديك أحدث إصدار', upd_error: 'تعذّر الاتصال. حاول لاحقاً',
+    upd_new: 'يتوفر الإصدار {v}. اضغط للتنزيل',
+    developer: 'المطوّر', dev_role: 'مهندس ومطوّر التطبيق', contact_me: 'تواصل معي', info: 'معلومات',
+    privacy: 'الخصوصية', privacy_sub: 'بياناتك تبقى على هاتفك', libs: 'المكتبات المستخدمة', libs_sub: 'برمجيات مفتوحة المصدر',
+    privacy_text: 'كل بياناتك محفوظة على هاتفك فقط، ولا يرسل التطبيق أي شيء إلى خوادم. الاتصال الوحيد بالإنترنت هو عند ضغطك «التحقق من التحديثات»، وهو يسأل GitHub عن رقم آخر إصدار دون إرسال أي بيانات منك.',
+    made_in: 'صُنع في الأردن',
   },
   en: {
     close: 'Close', confirm: 'Confirm', cancel: 'Cancel', cancel_back: 'Cancel', done: 'Done', save: 'Save',
@@ -228,8 +294,8 @@ move_up: 'تحريك لأعلى', move_down: 'تحريك لأسفل',
     tab_home: 'Home', tab_list: 'Charges', tab_settings: 'Settings',
     nav_aria: 'Main navigation',
 
-    all_months: 'All months', filter_month: 'Month filter',
-    export_csv_title: 'Export CSV',
+
+
     demo_banner: 'Sample data, not yours. Your first real charge replaces it.',
     start_fresh: 'Start with an empty log',
     welcome_title: 'Welcome to your smart dashboard',
@@ -242,50 +308,50 @@ move_up: 'تحريك لأعلى', move_down: 'تحريك لأسفل',
     ch_title: 'Monthly comparison', m_cost: 'Cost', m_energy: 'Energy',
     ch_empty: 'Add charges to see the comparison', ch_aria: 'Monthly comparison chart',
     list_empty_title: 'No charges yet', list_empty_hint: 'Log your first charge to start tracking and analysis.',
-    per_kwh: '{v} / kWh',
+
     prev_month: 'Previous month', next_month: 'Next month', cal_aria: 'Charging calendar',
-    cal_stats: '{n} charges · {h} home days · {f} fast days',
-    legend_home: 'Home charge', legend_fast: 'Fast charge', sel_title: 'Charges on {d} · total {v} {c}',
+
+    legend_home: 'Home charge', legend_fast: 'Fast charge', 
     day_aria: '{m} {d}', day_aria_n: '{m} {d}, {n} charges',
 
 eg: 'e.g. {v}',
-    form_edit: 'Edit charge', charger_type: 'Charger type', date: 'Date',
-    soc_before: 'Charge before (%)', soc_after: 'Charge after (%)',
+    form_edit: 'Edit charge', date: 'Date',
+
     energy_auto: 'Energy gained (auto from SoC × {cap} kWh)',
-    energy_manual: 'Manual value (optional, e.g. from the charger screen)',
-    energy_manual_ph: 'Leave empty for automatic',
-    energy_max_hint: 'Max {cap} kWh (battery capacity)',
-    cost_input: 'Cost entry', by_price: 'By price per kWh', by_total: 'By total amount',
-    price_c: 'Price / kWh ({c})', total_auto: 'Total (auto)', total_c: 'Total ({c})', price_auto: 'Price / kWh (auto)',
-    odo_label: 'Odometer (km), optional', odo_ph: 'Used to compute efficiency and distance',
+
+
+
+    by_price: 'By price per kWh', by_total: 'By total amount',
+
+
     note: 'Notes', note_ph: 'Station name, for example', save_charge: 'Save charge', confirm_delete: 'Confirm delete',
     err_date: 'Pick a valid date', err_soc_missing: 'Enter the charge level before and after',
     err_soc_range: 'Level must be between 0 and 100', err_soc_order: 'The level after must be higher than before',
     err_energy: 'Could not calculate the energy', err_energy_cap: 'Energy exceeds the battery capacity ({cap} kWh)',
     err_cost: 'Enter the cost', err_odo: 'Invalid odometer reading',
-    s_appearance: 'Appearance & language', s_lang: 'Language', lang_ar: 'العربية', lang_en: 'English',
+    s_lang: 'Language', lang_ar: 'العربية', lang_en: 'English',
     s_theme: 'Theme', theme_system: 'Auto', theme_dark: 'Dark', theme_light: 'Light',
 
-    s_car: 'Car details', car_name: 'Name / brand', car_model: 'Model',
+    car_name: 'Name / brand', car_model: 'Model',
     capacity_label: 'Total battery capacity (kWh)',
     capacity_hint: 'Used to turn charge level into energy, and the upper limit for energy in one charge. Older charges keep the capacity they were logged with.',
     car_image: 'Car image', img_auto: 'Automatic by model',
-    style_sedan: 'Sedan', style_suv: 'SUV', style_hatch: 'Hatchback', style_pickup: 'Pickup',
+
     upload_photo: 'Upload photo', remove_photo: 'Remove photo',
     img_hint: 'A code-drawn illustration picked from the model name (BYD Yuan Plus has a detailed one), not a photograph. Upload a real photo of your car, or put the file public/car.jpg in the project.',
     photo_fail: 'Could not read the image',
-    s_pricing: 'Default prices & estimates', currency_label: 'Currency symbol',
-    home_price: 'Home price / kWh', fast_price: 'Fast price / kWh',
+    currency_label: 'Currency symbol',
+    fast_price: 'Fast price / kWh',
     reset_defaults: 'Restore default settings',
-    s_entry: 'Entry options', manual_energy: 'Allow manual energy entry',
-    manual_energy_hint: 'Shows a manual energy field in the charge form. It cannot exceed the battery capacity.',
-    s_home: 'Home page', customize_home: 'Customize home page',
-    s_data: 'Data & export', data_hint: 'Your data is stored on this device only ({n} charges). Back it up regularly.',
+
+
+    customize_home: 'Customize home page',
+
     export_csv: 'Export records as CSV', backup: 'Backup', restore: 'Restore backup',
-    s_tools: 'Tools', load_demo: 'Load sample data to preview', clear_all: 'Delete all charges',
-    s_about: 'About', dev_by: 'Developed by Eng. Fadi Abu Khalel',
+    load_demo: 'Load sample data to preview', clear_all: 'Delete all charges',
+    dev_by: 'Developed by Eng. Fadi Abu Khalel',
     cust_title: 'Customize home page', cust_hint: 'Reorder sections with the arrows and hide what you do not need.',
-move_up: 'Move up', move_down: 'Move down',
+
     show: 'Show', hide: 'Hide', cust_reset: 'Restore default layout',
 
     t_saved: 'Charge saved ✓', t_deleted: 'Charge deleted', t_csv: 'CSV exported', t_csv_fail: 'Could not export the file',
@@ -294,7 +360,7 @@ move_up: 'Move up', move_down: 'Move down',
     discard_q: 'Discard changes?', discard: 'Discard', keep_editing: 'Keep editing',
     back_again: 'Press back again to exit',
     save_failed: 'Your last change could not be saved on this device. Export a backup now.', save_failed_btn: 'Export now',
-    ab_title: 'Automatic backups', ab_last: 'Last backup: {d}', ab_none: 'No backup yet',
+    ab_title: 'Automatic backups', 
     ab_hint: 'A copy is saved weekly on the phone (last 5). Share one to Drive to keep it off the phone.',
     ab_share: 'Share', ab_restore: 'Restore', ab_now: 'Back up now', ab_nothing: 'No charges to back up',
     t_demo: 'Sample data loaded', t_cleared: 'All charges deleted', t_fresh: 'Started with an empty log',
@@ -308,75 +374,75 @@ move_up: 'Move up', move_down: 'Move down',
     // ===== round 4 =====
     m_eff: 'Efficiency',
     date_ph: 'dd/mm/yyyy', pick_date: 'Pick from calendar', tab_bill: 'Bill',
-    period_month: 'This month', period_prev: 'Last month', period_custom: 'Custom period', period_all: 'All time',
-    sum_empty: 'No charges in this period', sec_summary: 'Period summary',
-    s_period: 'Calculation period', period_mode: 'Period shown on the home page',
+    period_prev: 'Previous period', period_custom: 'Custom period', 
+    sum_empty: 'No charges in this period', 
+
     period_from: 'From', period_to: 'To',
-    period_hint: 'Total energy and cost on the home page are calculated over this period. Type dates as dd/mm/yyyy, e.g. 03/10/2026.',
+
     period_bad: 'Enter a valid start and end date (start on or before end); otherwise the current month is shown.',
-    s_colors: 'Colors', col_accent: 'Main color', col_home: 'Home charging', col_fast: 'Fast charging', col_car: 'Car color',
-    col_reset: 'Restore theme colors', col_pal: 'Presets', col_custom: 'Custom colors',
+    col_car: 'Car color',
+
     pal_default: 'Default', pal_blue: 'Blue', pal_red: 'Red', pal_gold: 'Gold', pal_mono: 'Gray',
-    s_fontfamily: 'Font', font_tajawal: 'Tajawal', font_cairo: 'Cairo', font_almarai: 'Almarai', font_system: 'Device font',
+    font_tajawal: 'Tajawal', font_cairo: 'Cairo', font_almarai: 'Almarai', font_system: 'Device font',
     font_size_val: 'Font size {v}', font_sample: 'Sample text: charge 25.5 kWh — 3.4 JOD',
-    style_yuan: 'BYD Yuan Plus (detailed)',
-    bill_title: 'Charging impact on the electricity bill',
-    bill_intro: 'When a bill arrives, log the period it covers and its household total (kWh). The app finds the home charges in that period and their effect on the bill under the tiered tariff.',
+
+
+
     bill_from: 'Bill period start', bill_to: 'Bill period end', bill_total: 'Household total on the bill (kWh)',
     bill_loss: 'Charger loss % (optional)',
     bill_loss_hint: 'Logged energy is what reached the battery; the meter usually sees about 5–15% more because of charger losses. Leave empty to use the numbers as logged.',
 
-    bill_days: 'Period length: {d} days',
+
     bill_bad_dates: 'Start date must be on or before the end date', bill_bad_total: 'Enter a consumption above zero',
-    bill_ev: 'Car home charging in the period', bill_ev_sub: '{n} home charges', bill_ev_loss: 'With losses added: {v} kWh',
-    bill_no_ev: 'No home charges are logged in this period',
+
+
     bill_capped: 'The car charging energy ({ev} kWh) is higher than the household total entered, so all of it was assigned to the car. Check the numbers and dates.',
-    bill_base: 'Household without the car', bill_without: 'Bill without the car', bill_with: 'Bill with the car',
+    bill_with: 'Bill with the car',
     bill_impact: 'Car impact on the bill', bill_share: 'The car makes up {v}% of the bill',
     bill_eff: 'Average cost per kWh for the car: {v} {c}', bill_break: 'Car energy across the tiers',
     tier_range: '{a} – {b} kWh', tier_above: 'Above {a} kWh', fils: 'fils',
-    tariff_title: 'Tariff', tariff_plan: 'Tariff class', plan_sub: 'Subsidized', plan_unsub: 'Unsubsidized', plan_custom: 'Custom',
+    tariff_title: 'Tariff', plan_sub: 'Subsidized', plan_unsub: 'Unsubsidized', plan_custom: 'Custom',
     tariff_src: 'Default rates are the household tariff published by the Energy and Minerals Regulatory Commission, effective 1/1/2025. Tariffs change by official decision, so check your own bill.',
     tier_limit: 'Up to (kWh/month)', tier_rate: 'Rate (fils/kWh)', tier_last: 'Everything above',
     tariff_extra: 'Extra charges (fils/kWh)',
     tariff_extra_hint: 'Optional: for example the fuel price difference shown on your bill. Added to the car energy only. Leave 0 if you do not want it.',
-    tariff_scale: 'Tier limits are monthly and your bill covers {m} months, so the limits are multiplied.',
-    tariff_unmodeled: 'The calculation does not include the fixed cash subsidy, the minimum charge or other taxes, so it can differ slightly from your bill.',
-    tariff_reset: 'Restore official rates',
+
+
+
     // ===== round 5 =====
     tab_analysis: 'Analysis',
     hello: 'Welcome',
     hello_name: 'Hello, {name}',
-    battery_only: '{cap} kWh battery',
-    period_change_long: 'Change period',
+
+
     period_kind: 'Period type',
     kind_month: 'Calendar month',
-    kind_bill: 'Bill cycle',
-    no_bills_toast: 'Add a bill first to use bill cycles',
-    hero_distance: 'Distance',
-    hero_add_odo: 'Log an odometer reading to see distance',
-    sec_charges: 'Recent charges',
+
+
+
+
+
     view_all_n: 'View all ({n})',
     view_list: 'List',
     view_calendar: 'Calendar',
-    period_sheet_title: 'Choose period',
-    period_bills: 'Bill cycles',
-    period_no_bills: 'No bills logged yet. Add one from the Bill tab.',
-    an_title: 'Period analysis',
-    an_months: 'Months',
-    an_bills: 'Bill cycles',
+
+
+
+
+
+
     m_distance: 'Distance',
-    an_no_bills: 'Log at least one bill from the Bill tab to see bill cycles here.',
-    an_est_hint: 'Distance and efficiency come from the car odometer readings. The ≈ sign marks a proportional estimate between two readings, or within the available readings only.',
+
+
     an_table: 'Period details',
-    an_cost_km: 'Cost per km',
-    bill_impact_short: 'Car impact',
+
+
     ch_no_odo: 'Log at least two odometer readings to see distance and efficiency',
 
     odo_title: 'Car odometer readings',
-    odo_add: 'Add reading',
+
     odo_add_long: 'Log a car odometer reading',
-    odo_hint: 'Distance in any period is the difference between two readings at its edges, estimated proportionally (≈) when no reading falls on the edge. Odometer values entered in charges ({n}) count too.',
+
     odo_empty: 'No manual readings yet',
     odo_add_title: 'Car odometer reading',
     odo_add_hint: 'Log the odometer at the start of a period and another at its end (or any date in between) so the app can compute distance and efficiency.',
@@ -390,19 +456,19 @@ move_up: 'Move up', move_down: 'Move down',
     bill_edit: 'Edit bill',
     bill_save: 'Save bill',
     bill_form_hint: 'Enter the period the bill covers and the household total printed on it. The amount is optional and is compared with the estimate.',
-    bill_amount: 'Bill amount (optional)',
+
     bill_bad_amount: 'The amount is not valid',
-    bill_none: 'Log your first bill to see the car’s impact on it.',
-    bill_list: 'Logged bills',
-    bill_approx: 'Approximate: the period is not a whole month',
+
+
+
     bill_diff: 'The estimate ({est} {c}) differs from your bill amount ({real} {c}). The tariff or fees may have changed; adjust them in the tariff section.',
     confirm_del_bill: 'Delete this bill?',
     t_bill_saved: 'Bill saved ✓',
     t_bill_deleted: 'Bill deleted',
-    s_profile: 'Profile',
+
     user_name: 'Your name',
     user_name_ph: 'e.g. Fadi',
-    user_name_hint: 'Shown at the top of the home page after “Hello”. Leave empty to show “Welcome”.',
+
     export_pdf: 'Export PDF report',
     t_pdf: 'PDF report created',
     t_pdf_fail: 'Could not create the PDF',
@@ -422,6 +488,66 @@ move_up: 'Move up', move_down: 'Move down',
     kpi_eff: 'Efficiency',
     kpi_costkm: 'Cost per km',
     rep_odo_note: '≈ estimated from car odometer readings',
+    // ===== New design 6A =====
+    kind_cycle: 'Bill cycle', kind_custom: 'Custom', apply: 'Apply', period_next: 'Next period',
+    preset_last7: 'Last 7 days', preset_last30: 'Last 30 days', preset_all: 'All time',
+    cycle_start: 'Cycle start', cycle_title: 'Cycle {a} – {b}', current: 'Current',
+    day_n_of_m: 'Day {n} of {m}', days: 'days', back: 'Back', avg: 'Average',
+    today: 'Today', yesterday: 'Yesterday', details: 'Details', undo: 'Undo', t_restored_one: 'Charge restored',
+    tier: 'Tier', tier_auto: 'Auto by day', tier_manual: 'set manually',
+    tier_low: 'Low', tier_mid: 'Middle', tier_high: 'High',
+    tier_low_s: 'Low', tier_mid_s: 'Middle', tier_high_s: 'High',
+    tier_low_full: 'Low tier', tier_mid_full: 'Middle tier', tier_high_full: 'High tier',
+    tier_under: 'Up to {a} kWh', tier_over: 'Above {a} kWh', tier_between: '{a} – {b} kWh', today_tier: "Today's tier:",
+    detail_fast: 'Fast charge', detail_home: 'Home charge',
+    detail_nth_month: 'Charge #{n} this month', detail_nth_cycle: 'Charge #{n} this cycle',
+    energy_from_charger: 'Energy taken from the charger screen', price_kwh: 'Price per kWh', station: 'Station',
+    form_new: 'New charge', battery: 'Battery', soc_before_s: 'Before', soc_after_s: 'After',
+    warn_soc_prev: 'Your last charge ended at {a}%, and "before" is higher. Check the number.',
+    energy_charger: 'Energy from the charger screen', energy: 'Energy', energy_soc_est: 'Estimate from battery %: {v} kWh',
+    price_recorded: 'Previously recorded price: {v}', price: 'Price per kWh', station_note: 'Station',
+    note_opt: 'Note (optional)', station_ph: 'Station name',
+    swipe_hint: 'Swipe a charge sideways to delete it', drag: 'Drag to reorder', recent_count: 'Number of charges',
+    hero_energy: 'Period energy', vs_prev_short: 'vs previous',
+    vs_prev_cycle: 'vs previous cycle', vs_prev_month: 'vs last month', vs_prev_period: 'vs previous period',
+    forecast_cycle: 'Expected by cycle end', forecast_period: 'Expected by month end',
+    last_today: 'Last charge today · {p}%', last_ago: 'Last charge {d} days ago · {p}%', last_ago_one: 'Last charge yesterday · {p}%',
+    charges_count: 'Charges', charges_word: 'charges', charges_word_one: 'charge', avg_per_charge: 'Average per charge',
+    bill_card_title: "Car's effect on this cycle's bill", backup_stale: 'Last backup was {d} days ago. Back up now',
+    backup_never: 'You have no backup yet. Back up now',
+    sec_hero: 'Main card', sec_stats: 'Cost and charge count', sec_bill: 'Bill card', sec_recent: 'Recent charges',
+    view_kind: 'View', filter_type: 'Charge type', an_metric: 'Metric', daily_avg: 'Daily average',
+    odo_today: "Today's reading", odo_hint_new: 'Record the odometer once at the start of each month or cycle, and the app works out distance and consumption per period.',
+    bill_amount_c: 'Bill amount ({c}), optional', bill_recorded: 'Bill recorded', bill_not_recorded: 'No bill recorded',
+    bill_ev_kwh: 'Home charging energy', bill_estimate: 'Estimate', bill_est_vs_real: 'Estimate vs actual bill',
+    bill_record: 'Record bill', bill_intro_new: 'Each cycle starts on the cycle start day in settings. Record your bill when it arrives to compare the estimate with the real amount.',
+    bill_share_chart: "Car's share of the bill",
+    set_car: 'Car', set_car_sub: 'Name, battery and photo', set_power: 'Electricity and prices', set_power_sub: 'Tiers, bill cycle and fast charging',
+    set_look: 'Appearance', set_look_sub: 'Colours, dark mode, font and language', set_data: 'Data', set_data_sub: 'Backup, export and delete',
+    set_about: 'About', set_about_sub: 'Version, developer and privacy',
+    car_image_opt: 'Car photo (optional)', tariff_from: 'Prices apply from',
+    tariff_from_hint: 'Charges before this date keep their recorded prices. Leave empty to apply prices to all charges.',
+    cycle_settings: 'Bill cycle and tiers', cycle_day: 'Cycle start day', cycle_day_hint: 'The day your electricity meter is read each month (1 to 28).',
+    tier_days_low: 'Low-tier days at cycle start', tier_days_high: 'High-tier days at cycle end',
+    tier_days_hint: 'The app picks the tier from the day in the cycle, and you can raise it for any charge. A raised tier never drops within the same cycle.',
+    more_prices: 'Fast charging and other prices',
+    recalc_hint: 'You have {n} old home charges with a fixed price. They can be recalculated with the new tier system.',
+    recalc_btn: 'Recalculate old charges', recalc_q: 'Old home charges will be re-priced by tier. Continue?',
+    t_recalc: 'Charges recalculated',
+    s_palette: 'App colour', pal_lime: 'Lime', pal_lime_sub: 'Black and lime green', pal_teal: 'Teal', pal_teal_sub: 'Navy and teal',
+    s_backup: 'Backup', s_export: 'Export', s_danger: 'Danger zone',
+    backup_status: 'Last backup', backup_last: 'On {d}', backup_none: 'No backup yet',
+    confirm_clear2: '{n} charges will be deleted permanently and cannot be undone. Are you sure?', delete_all_final: 'Delete all permanently',
+    app_name: 'EV Smart Dashboard', version_build: 'Version {v} · Build {b}', released_on: 'Built on {d}',
+    whats_new: "What's new", whats_new_sub: 'Changes in this version',
+    whats_new_list: 'New design in two colours, Lime and Teal, light and dark|Periods by month, bill cycle or a custom range|Automatic tier by day in cycle, which you can raise|Simpler charge form with today, yesterday and price suggestions|Settings split into 5 pages plus an About page|Backup reminder and undo after delete',
+    upd_title: 'Check for updates', upd_sub: 'Tap to check for a newer version', upd_loading: 'Checking…',
+    upd_none: 'No published releases yet', upd_latest: 'You have the latest version', upd_error: 'Could not connect. Try later',
+    upd_new: 'Version {v} is available. Tap to download',
+    developer: 'Developer', dev_role: 'Engineer and app developer', contact_me: 'Contact me', info: 'Information',
+    privacy: 'Privacy', privacy_sub: 'Your data stays on your phone', libs: 'Libraries used', libs_sub: 'Open-source software',
+    privacy_text: 'All your data is stored only on your phone, and the app sends nothing to any server. The only internet connection is when you tap "Check for updates", which asks GitHub for the latest version number without sending any of your data.',
+    made_in: 'Made in Jordan',
   },
 };
 export const DICT = D;
