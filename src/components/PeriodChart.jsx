@@ -27,7 +27,7 @@ export default function PeriodChart({ rows, kind, unit, ariaLabel, decimals = 1 
   const xc = (i) => (rtl ? W - PAD.r - slot * (i + 0.5) : PAD.l + slot * (i + 0.5));
   const y = (v) => PAD.t + ih - ((v - lo) / (hi - lo || 1)) * ih;
   const bw = Math.max(8, Math.min(22, slot * 0.42));
-  const fs = n > 8 ? 9 : 11;
+  const fs = n > 8 ? 10.5 : 12;
   const line = rows.map((r, i) => (r.value != null ? `${xc(i).toFixed(1)},${y(r.value).toFixed(1)}` : null)).filter(Boolean).join(' ');
 
   return (
@@ -54,7 +54,6 @@ export default function PeriodChart({ rows, kind, unit, ariaLabel, decimals = 1 
         )}
         {/* خط المتوسط */}
         <line x1={PAD.l} x2={W - PAD.r} y1={y(avg)} y2={y(avg)} stroke={C.axis} strokeWidth="1.2" strokeDasharray="4 4" data-testid="avg-line" />
-        <text x={rtl ? PAD.l : W - PAD.r} y={y(avg) - 4} fill={C.axis} fontSize="10" textAnchor={rtl ? 'start' : 'end'}>{t('avg')} {fix(avg, decimals)}</text>
         {/* الرقم فوق كل عمود + عنوانه */}
         {rows.map((r, i) => {
           const v = totals[i];
@@ -70,13 +69,18 @@ export default function PeriodChart({ rows, kind, unit, ariaLabel, decimals = 1 
           );
         })}
       </svg>
-      <div className="mt-1 flex justify-center gap-5 text-sm text-slate-400">
-        {kind === 'stack' ? (
+      {/* وسيلة الإيضاح: الألوان + المتوسط كنص واضح تحت الرسم بدل كتابته فوق الخط */}
+      <div className="mt-1 flex flex-wrap justify-center gap-x-5 gap-y-1 text-sm text-slate-400">
+        {kind === 'stack' && (
           <>
             <span className="inline-flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full" style={{ background: C.home }} /> {t('type_home_s')}</span>
             <span className="inline-flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full" style={{ background: C.fast }} /> {t('type_fast_s')}</span>
           </>
-        ) : <span>{unit}</span>}
+        )}
+        <span className="inline-flex items-center gap-1.5" data-testid="avg-legend">
+          <i className="w-4 border-t-2 border-dashed" style={{ borderColor: C.axis }} />
+          {t('avg')} <b className="tabular text-slate-200" dir="ltr">{fix(avg, decimals)}{unit ? ` ${unit}` : ''}</b>
+        </span>
       </div>
     </div>
   );

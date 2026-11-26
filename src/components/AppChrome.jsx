@@ -65,7 +65,7 @@ export function Overlays() {
     <>
       <ChargeForm open={ui.form.open} onClose={ui.closeForm} onSave={actions.saveCharge} onDelete={actions.deleteCharge} initial={ui.form.charge} settings={settings} />
       <ChargeDetails />
-      <OdoSheet open={ui.sheet === 'odo'} onClose={ui.closeSheet} onSave={actions.saveOdo} readings={readings} />
+      <OdoSheet open={ui.sheet === 'odo'} onClose={ui.closeSheet} onSave={actions.saveOdo} onDelete={actions.deleteOdo} initial={ui.odoEdit} readings={readings} />
       <HomeCustomizer open={ui.sheet === 'customize'} onClose={ui.closeSheet} layout={settings.homeLayout} recentCount={settings.recentCount} onChange={actions.changeSettings} />
       {saveError && (
         <div role="alert" className="fixed inset-x-0 top-0 z-[70] flex items-center justify-between gap-3 bg-danger px-4 py-2.5 text-sm font-bold text-white" style={{ paddingTop: 'max(0.625rem, env(safe-area-inset-top), var(--safe-area-inset-top, 0px))' }} data-testid="save-error">

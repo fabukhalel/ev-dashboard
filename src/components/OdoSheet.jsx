@@ -5,7 +5,7 @@ import { todayStr, parseNum, num } from '../lib/format.js';
 import { useI18n } from '../lib/i18n.jsx';
 
 /** تسجيل قراءة عداد السيارة (كم) في تاريخ معيّن. readings: كل القراءات الحالية للتحقق من التسلسل */
-export default function OdoSheet({ open, onClose, onSave, readings }) {
+export default function OdoSheet({ open, onClose, onSave, onDelete, initial, readings: all }) {
   const { t } = useI18n();
   const [date, setDate] = useState(todayStr());
   const [km, setKm] = useState('');
@@ -13,11 +13,14 @@ export default function OdoSheet({ open, onClose, onSave, readings }) {
 
   useEffect(() => {
     if (open) {
-      setDate(todayStr());
-      setKm('');
+      setDate(initial ? initial.date : todayStr());
+      setKm(initial ? String(initial.km) : '');
       setErr('');
     }
-  }, [open]);
+  }, [open, initial]);
+
+  // عند التعديل: القراءة نفسها لا تدخل في فحص الترتيب
+  const readings = initial ? all.filter((r) => !(r.id === initial.id && r.src === initial.src)) : all;
 
   const last = readings.length ? readings[readings.length - 1] : null;
 
@@ -29,15 +32,17 @@ export default function OdoSheet({ open, onClose, onSave, readings }) {
     const before = [...readings].reverse().find((r) => r.date <= date);
     const after = readings.find((r) => r.date > date);
     if ((before && v < before.km) || (after && v > after.km)) return setErr(t('odo_err_order'));
-    onSave({ date, km: v });
+    onSave({ date, km: v }, initial);
     return undefined;
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title={t('odo_add_title')}
-      footer={<div className="flex gap-2"><button type="button" className="btn-ghost flex-1" onClick={onClose}>{t('cancel')}</button><button type="button" className="btn-primary flex-1 py-3.5" onClick={submit} data-testid="odo-save">{t('save')}</button></div>}>
+    <Sheet open={open} onClose={onClose} title={initial ? t('odo_edit_title') : t('odo_add_title')}
+      footer={<div className="flex gap-2">{initial
+        ? <button type="button" className="btn-danger px-6" onClick={() => onDelete(initial)} data-testid="odo-delete">{t('delete')}</button>
+        : <button type="button" className="btn-ghost flex-1" onClick={onClose}>{t('cancel')}</button>}<button type="button" className="btn-primary flex-1 py-3.5" onClick={submit} data-testid="odo-save">{t('save')}</button></div>}>
       <div className="space-y-4">
-        <p className="text-sm leading-relaxed text-slate-400">{t('odo_add_hint')}</p>
+        <p className="text-sm leading-relaxed text-slate-400">{initial?.src === 'charge' ? t('odo_from_charge_hint') : t('odo_add_hint')}</p>
         <DateField id="odo-date" label={t('date')} value={date} onChange={setDate} />
         <div>
           <label className="label" htmlFor="odo-km">{t('odo_km_label')}</label>
