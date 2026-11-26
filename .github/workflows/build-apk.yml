@@ -70,9 +70,14 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           OUT="ev-dashboard-${VERSION}-${{ github.run_number }}.apk"
-          cp android/app/build/outputs/apk/release/app-release.apk "$OUT"
+          ls -la android/app/build/outputs/apk/release/
+          SRC=android/app/build/outputs/apk/release/app-release.apk
+          if [ ! -f "$SRC" ]; then echo "::error::Signed APK not found (signing was not applied)"; exit 1; fi
+          cp "$SRC" "$OUT"
           APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
-          "$APKSIGNER" verify --print-certs "$OUT" | grep -E "Signer #1 certificate (DN|SHA-256)"
+          echo "Using $APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs "$OUT" > verify.txt
+          grep -iE "verifies|signer #1 certificate (dn|sha-256)" verify.txt
           echo "file=$OUT" >> "$GITHUB_OUTPUT"
 
       - name: Remove signing key
