@@ -19,6 +19,8 @@ import { makeBackup, parseBackup, defaultSettings } from './lib/storage.js';
 import { loadPersisted, createSaver } from './lib/persist.js';
 import { getBackend, getBackupFs, onBackground, shareBackupFile } from './lib/platform.js';
 import { maybeAutoBackup, listBackups, BACKUP_DIR, KEY_LAST } from './lib/autoBackup.js';
+import { handleBack } from './lib/backStack.js';
+import { syncSystemBars, hideSplash, haptic, onBackButton, exitApp, onResume } from './lib/native.js';
 import { computeSegments, summarize, byMonth, sortChrono } from './lib/calc.js';
 import { resolvePeriod, inPeriod } from './lib/period.js';
 import { collectReadings } from './lib/odo.js';
@@ -131,6 +133,9 @@ function AppMain({ boot }) {
       applyAppearance(root, settings, eff);
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', eff === 'light' ? '#eaf7fa' : '#07121f');
+      const scheme = document.querySelector('meta[name="color-scheme"]');
+      if (scheme) scheme.setAttribute('content', eff);
+      syncSystemBars(eff);
     };
     apply();
     if (settings.theme !== 'system' || !mq) return undefined;
@@ -143,6 +148,29 @@ function AppMain({ boot }) {
     clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(''), 2400);
   }, []);
+
+  // ---- سلوك أصلي (المرحلة 4) ----
+  useEffect(() => { hideSplash(); }, []);
+  // عند العودة من الخلفية: إعادة رسم ليتحدث «اليوم» والفترة الحالية (مثلاً بعد منتصف الليل أو بداية شهر)
+  const [, setResumeTick] = useState(0);
+  useEffect(() => onResume(() => setResumeTick((n) => n + 1)), []);
+  // زر الرجوع: يغلق أعلى نافذة، ثم يعود للرئيسية، ثم «اضغط مرة أخرى للخروج»
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
+  const lastBack = useRef(0);
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') handleBack(); };
+    window.addEventListener('keydown', onKey);
+    const off = onBackButton(() => {
+      if (handleBack()) return;
+      if (tabRef.current !== 'home') { setTab('home'); return; }
+      const now = Date.now();
+      if (now - lastBack.current < 2000) { exitApp(); return; }
+      lastBack.current = now;
+      notify(t('back_again'));
+    });
+    return () => { window.removeEventListener('keydown', onKey); off(); };
+  }, [notify, t]);
 
   // ---- البيانات المشتقة ----
   const allSegments = useMemo(() => computeSegments(charges, settings.capacity), [charges, settings.capacity]);
@@ -201,12 +229,14 @@ function AppMain({ boot }) {
       return { ...s, charges: exists ? s.charges.map((x) => (x.id === c.id ? c : x)) : [...s.charges, c] };
     });
     closeForm();
+    haptic('light');
     notify(t('t_saved'));
   };
 
   const deleteCharge = (id) => {
     setState((s) => ({ ...s, charges: s.charges.filter((x) => x.id !== id) }));
     closeForm();
+    haptic('medium');
     notify(t('t_deleted'));
   };
 
@@ -595,7 +625,7 @@ function AppMain({ boot }) {
             onClick={openAdd}
             aria-label={t('add_charge')}
             className="fixed bottom-[88px] end-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-brand1 to-brand2 text-onaccent shadow-glow transition active:scale-90"
-            style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+            style={{ marginBottom: 'max(env(safe-area-inset-bottom), var(--safe-area-inset-bottom, 0px))' }}
           >
             <Plus size={28} strokeWidth={3} />
           </button>
@@ -638,7 +668,7 @@ function AppMain({ boot }) {
           onChange={changeSettings}
         />
         {saveError && (
-          <div role="alert" className="fixed inset-x-0 top-0 z-[70] flex items-center justify-between gap-3 bg-fast px-4 py-2.5 text-sm font-bold text-white" style={{ paddingTop: 'max(0.625rem, env(safe-area-inset-top))' }} data-testid="save-error">
+          <div role="alert" className="fixed inset-x-0 top-0 z-[70] flex items-center justify-between gap-3 bg-fast px-4 py-2.5 text-sm font-bold text-white" style={{ paddingTop: 'max(0.625rem, env(safe-area-inset-top), var(--safe-area-inset-top, 0px))' }} data-testid="save-error">
             <span>{t('save_failed')}</span>
             <button type="button" className="shrink-0 rounded-full bg-white/20 px-3 py-1 text-xs font-extrabold" onClick={exportBackup}>{t('save_failed_btn')}</button>
           </div>

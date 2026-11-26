@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Home, Zap, Save, Trash2 } from 'lucide-react';
 import { Sheet, Segmented } from './ui.jsx';
 import DateField from './DateField.jsx';
@@ -40,13 +40,35 @@ function initState(initial) {
 
 export default function ChargeForm({ open, onClose, onSave, onDelete, initial, settings }) {
   const { t } = useI18n();
+  // نموذج فيه تعديلات غير محفوظة يسأل قبل الإغلاق (زر الرجوع، X، النقر خارج النافذة)
+  const dirty = useRef(false);
+  const [askDiscard, setAskDiscard] = useState(false);
+  const close = () => {
+    dirty.current = false;
+    setAskDiscard(false);
+    onClose();
+  };
+  const guardedClose = () => {
+    if (dirty.current && !askDiscard) setAskDiscard(true);
+    else close();
+  };
   return (
-    <Sheet open={open} onClose={onClose} title={initial ? t('form_edit') : t('add_charge')}>
+    <Sheet open={open} onClose={guardedClose} title={initial ? t('form_edit') : t('add_charge')}>
+      {open && askDiscard && (
+        <div role="alert" className="mb-3 flex items-center justify-between gap-2 rounded-xl bg-fast/15 px-3 py-2 text-sm font-bold text-fast" data-testid="discard-ask">
+          <span>{t('discard_q')}</span>
+          <span className="flex shrink-0 gap-1.5">
+            <button type="button" className="btn-danger !px-3 !py-1.5 text-xs" onClick={close}>{t('discard')}</button>
+            <button type="button" className="btn-ghost !px-3 !py-1.5 text-xs" onClick={() => setAskDiscard(false)}>{t('keep_editing')}</button>
+          </span>
+        </div>
+      )}
       {open && (
         <Inner
           key={initial ? initial.id : 'new'}
-          onClose={onClose}
-          onSave={onSave}
+          onClose={close}
+          onDirty={(v) => { dirty.current = v; }}
+          onSave={(c) => { dirty.current = false; onSave(c); }}
           onDelete={onDelete}
           initial={initial}
           settings={settings}
@@ -56,9 +78,11 @@ export default function ChargeForm({ open, onClose, onSave, onDelete, initial, s
   );
 }
 
-function Inner({ onClose, onSave, onDelete, initial, settings }) {
+function Inner({ onClose, onDirty, onSave, onDelete, initial, settings }) {
   const { t } = useI18n();
   const [f, setF] = useState(() => initState(initial));
+  const [start] = useState(f);
+  useEffect(() => { onDirty(f !== start); }, [f, start, onDirty]);
   const [error, setError] = useState('');
   const [confirmDel, setConfirmDel] = useState(false);
   const set = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.value }));
