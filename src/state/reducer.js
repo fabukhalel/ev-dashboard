@@ -34,6 +34,10 @@ export function reducer(s, a) {
       return withTiers({ ...s, bills: s.bills.filter((x) => x.id !== a.id) });
     case 'odo/add':
       return { ...s, odos: [...s.odos, { id: a.id || newId(), ...a.odo }] };
+    case 'odo/update':
+      return { ...s, odos: s.odos.map((x) => (x.id === a.id ? { ...x, ...a.odo, id: x.id } : x)) };
+    case 'charge/odo':
+      return { ...s, charges: s.charges.map((c) => (c.id === a.id ? { ...c, odometer: a.km } : c)) };
     case 'odo/delete':
       return { ...s, odos: s.odos.filter((x) => x.id !== a.id) };
     case 'settings/change': {

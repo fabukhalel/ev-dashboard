@@ -37,8 +37,17 @@ describe('reducer', () => {
     expect(s.odos).toEqual([{ id: 'o1', date: '2026-11-02', km: 1000 }]);
     s = reducer(s, { type: 'odo/add', odo: { date: '2026-11-03', km: 1100 } });
     expect(s.odos[1].id).toMatch(/\w+-\w+/);
+    s = reducer(s, { type: 'odo/update', id: 'o1', odo: { date: '2026-11-04', km: 1050 } });
+    expect(s.odos[0]).toEqual({ id: 'o1', date: '2026-11-04', km: 1050 });
     s = reducer(s, { type: 'odo/delete', id: 'o1' });
     expect(s.odos).toHaveLength(1);
+  });
+
+  it('clears an old odometer reading stored on a charge', () => {
+    let s = reducer(base(), { type: 'charge/save', charge: ch('a', { odometer: 5000 }) });
+    s = reducer(s, { type: 'charge/odo', id: 'a', km: null });
+    expect(s.charges[0].odometer).toBeNull();
+    expect(s.charges[0].after).toBe(80);
   });
 
   it('switching language swaps the default currency only', () => {

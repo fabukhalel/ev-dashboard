@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Gauge, Plus, Trash2 } from 'lucide-react';
+import { Gauge, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import PeriodChart from '../components/PeriodChart.jsx';
 import { PageTitle, Segmented, NumUnit, SectionTitle, C } from '../components/ui.jsx';
 import { useStore, useUi } from '../state/store.jsx';
@@ -17,8 +17,14 @@ function periodTitle(p, kind, t, lang) {
 }
 
 /** التحليل (A1–A7): الطاقة افتراضياً، التكلفة، والمسافة والكفاءة عند وجود قراءات عداد */
+// للفترة الحالية: آخر قراءة حتى اليوم (لا نقدّر ما بعد آخر قراءة)
+const lastOdoUpTo = (readings, today) => {
+  const last = readings.length ? readings[readings.length - 1].date : today;
+  return last < today ? last : today;
+};
+
 export default function Analysis() {
-  const { state: { charges, odos, settings, bills }, t, lang, actions } = useStore();
+  const { state: { charges, settings, bills }, t, lang, actions } = useStore();
   const ui = useUi();
   const readings = useReadings();
   const kind = settings.periodMode === 'cycle' ? 'cycle' : 'month';
@@ -34,7 +40,7 @@ export default function Analysis() {
       const s = periodStats(charges, readings, p);
       const day = dayOf(p, today);
       const days = day ? day.n : daysInclusive(p.start, p.end);
-      return { p, s, days, current: !!day, ...periodTitle(p, kind, t, lang), odoStart: odoAt(readings, p.start), odoEnd: odoAt(readings, day ? today : p.end) };
+      return { p, s, days, current: !!day, ...periodTitle(p, kind, t, lang), odoStart: odoAt(readings, p.start), odoEnd: odoAt(readings, day ? lastOdoUpTo(readings, today) : p.end) };
     });
   }, [charges, readings, kind, today, settings.cycleStartDay, bills, t, lang]);
 
@@ -47,7 +53,9 @@ export default function Analysis() {
 
   const metrics = [{ value: 'energy', label: t('m_energy') }, { value: 'cost', label: t('m_cost') }];
   if (hasOdo) metrics.push({ value: 'distance', label: t('m_distance') }, { value: 'eff', label: t('m_eff') });
-  const manual = [...odos].sort((a, b) => b.date.localeCompare(a.date));
+  const [allOdo, setAllOdo] = useState(false);
+  const list = [...readings].reverse();
+  const Chev = lang === 'ar' ? ChevronLeft : ChevronRight;
 
   return (
     <>
@@ -96,7 +104,7 @@ export default function Analysis() {
       <section className="card space-y-3 p-4" data-testid="odo-section">
         <div className="flex items-center justify-between gap-2">
           <h3 className="flex items-center gap-2 text-lg font-bold"><Gauge size={19} className="text-accent" /> {t('odo_title')}</h3>
-          <button className="btn-primary !px-3.5 !py-2 text-sm" onClick={() => ui.openSheet('odo')} data-testid="odo-today"><Plus size={16} /> {t('odo_today')}</button>
+          <button className="btn-primary !px-3.5 !py-2 text-sm" onClick={() => ui.openOdo(null)} data-testid="odo-today"><Plus size={16} /> {t('odo_today')}</button>
         </div>
         <p className="text-sm leading-relaxed text-slate-400">{t('odo_hint_new')}</p>
         {rows.length > 0 && hasOdo && (
@@ -109,18 +117,26 @@ export default function Analysis() {
             ))}
           </ul>
         )}
-        {manual.length === 0 ? (
+        {list.length === 0 ? (
           <p className="rounded-2xl bg-ink-900 px-3 py-3 text-center text-sm text-slate-400">{t('odo_empty')}</p>
         ) : (
-          <ul className="space-y-1.5">
-            {manual.map((o) => (
-              <li key={o.id} className="tabular flex items-center justify-between gap-2 rounded-2xl bg-ink-900 px-3 py-2 text-sm">
-                <bdi dir="ltr" className="font-bold">{formatDate(o.date)}</bdi>
-                <span dir="ltr" className="font-bold">{num(o.km, 0)} {t('km')}</span>
-                <button className="rounded-full p-1.5 text-danger" onClick={() => actions.deleteOdo(o)} aria-label={`${t('delete')}: ${formatDate(o.date)}`}><Trash2 size={16} /></button>
-              </li>
-            ))}
-          </ul>
+          <>
+            <p className="text-sm text-slate-500">{t('odo_tap_hint')}</p>
+            <ul className="space-y-1.5" data-testid="odo-list">
+              {(allOdo ? list : list.slice(0, 6)).map((r) => (
+                <li key={`${r.src}-${r.id}`}>
+                  <button type="button" className="tabular flex w-full items-center justify-between gap-2 rounded-2xl bg-ink-900 px-3 py-2.5 text-start text-sm" onClick={() => ui.openOdo(r)} data-testid="odo-row">
+                    <span className="min-w-0">
+                      <bdi dir="ltr" className="block font-bold">{formatDate(r.date)}</bdi>
+                      {r.src === 'charge' && <span className="block text-xs text-slate-500">{t('odo_from_charge')}</span>}
+                    </span>
+                    <span className="flex items-center gap-1.5"><b dir="ltr">{num(r.km, 0)} {t('km')}</b><Chev size={16} className="text-slate-500" /></span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {list.length > 6 && <button type="button" className="btn-ghost w-full !py-2 text-sm" onClick={() => setAllOdo(!allOdo)}>{allOdo ? t('show_less') : t('view_all_n', { n: list.length })}</button>}
+          </>
         )}
       </section>
     </>

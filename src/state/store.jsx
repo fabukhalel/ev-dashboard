@@ -33,6 +33,7 @@ function useUiState() {
   const [chargesView, setChargesView] = useState('list'); // list | calendar
   const [form, setForm] = useState({ open: false, charge: null });
   const [sheet, setSheet] = useState(null); // 'odo' | 'customize' | null
+  const [odoEdit, setOdoEdit] = useState(null); // القراءة التي تُعدّل (أو null لقراءة جديدة)
   const [detail, setDetail] = useState(null); // الشحنة المعروضة في نافذة التفاصيل
   const [periodOffset, setPeriodOffset] = useState(0); // 0 = الفترة الحالية، -1 السابقة...
   const [settingsPage, setSettingsPage] = useState(null); // صفحة فرعية في الإعدادات
@@ -51,10 +52,11 @@ function useUiState() {
     openEdit: (c) => { setDetail(null); setForm({ open: true, charge: c }); },
     closeForm: () => setForm({ open: false, charge: null }),
     sheet, openSheet: setSheet, closeSheet: () => setSheet(null),
+    odoEdit, openOdo: (r = null) => { setOdoEdit(r); setSheet('odo'); },
     detail, openDetail: setDetail, closeDetail: () => setDetail(null),
     periodOffset, setPeriodOffset,
     settingsPage, setSettingsPage,
-  }), [tab, typeFilter, chargesView, form, sheet, detail, periodOffset, settingsPage]);
+  }), [tab, typeFilter, chargesView, form, sheet, odoEdit, detail, periodOffset, settingsPage]);
 }
 
 export function StoreProvider({ boot, children }) {
@@ -151,15 +153,22 @@ export function StoreProvider({ boot, children }) {
         dispatch({ type: 'bill/delete', id: b.id });
         notify(t('t_bill_deleted'));
       },
-      saveOdo: (o) => {
-        dispatch({ type: 'odo/add', odo: o });
+      // edit: القراءة الأصلية عند التعديل. قراءة قديمة محفوظة داخل شحنة تُنقل إلى قائمة القراءات المستقلة
+      saveOdo: (o, edit) => {
+        if (edit?.src === 'charge') {
+          dispatch({ type: 'charge/odo', id: edit.id, km: null });
+          dispatch({ type: 'odo/add', odo: o });
+        } else if (edit) dispatch({ type: 'odo/update', id: edit.id, odo: o });
+        else dispatch({ type: 'odo/add', odo: o });
         ui.closeSheet();
         notify(t('t_odo_saved'));
       },
-      deleteOdo: async (o) => {
-        if (!(await ask(t('confirm_del_odo'), t('delete')))) return;
-        dispatch({ type: 'odo/delete', id: o.id });
+      deleteOdo: async (r) => {
+        if (!(await ask(t('confirm_del_odo'), t('delete')))) return false;
+        dispatch(r.src === 'charge' ? { type: 'charge/odo', id: r.id, km: null } : { type: 'odo/delete', id: r.id });
+        ui.closeSheet();
         notify(t('t_odo_deleted'));
+        return true;
       },
       resetSettings: () => {
         dispatch({ type: 'settings/reset' });
