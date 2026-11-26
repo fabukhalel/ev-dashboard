@@ -36,7 +36,22 @@ jobs:
             echo "::error::Secret KEYSTORE_BASE64 is missing. Add the 4 signing secrets in Settings > Secrets and variables > Actions."
             exit 1
           fi
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          # يتسامح مع المسافات والأسطر الزائدة التي قد تدخل مع النسخ واللصق
+          if ! printf '%s' "$KEYSTORE_BASE64" | tr -d ' \r\n\t' | base64 -d > "$RUNNER_TEMP/release.jks" 2>/dev/null; then
+            echo "::error::KEYSTORE_BASE64 is not valid base64 (length after cleanup: $(printf '%s' "$KEYSTORE_BASE64" | tr -d ' \r\n\t' | wc -c), expected 5764). Paste the whole content of KEYSTORE_BASE64.txt again."
+            exit 1
+          fi
+
+      - name: Check signing key and passwords
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          if ! keytool -list -keystore "$RUNNER_TEMP/release.jks" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" > /dev/null 2>&1; then
+            echo "::error::Keystore could not be opened. Check KEYSTORE_PASSWORD and KEY_ALIAS secrets."
+            exit 1
+          fi
+          echo "Keystore OK"
 
       - name: Build signed release APK
         working-directory: android
