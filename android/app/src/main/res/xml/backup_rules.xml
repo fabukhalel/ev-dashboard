@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 وما قبله: نفس قواعد النسخ الاحتياطي التلقائي -->
+<full-backup-content>
+    <include domain="sharedpref" path="." />
+    <include domain="file" path="backups/" />
+</full-backup-content>

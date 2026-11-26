@@ -1,6 +1,4 @@
-// التخزين المحلي (localStorage) + النسخ الاحتياطي JSON
-
-const KEY = 'ev-dashboard:v1';
+// تنظيف البيانات + النسخ الاحتياطي JSON (الحفظ الدائم في persist.js)
 
 import { defaultTariff, TARIFF_PLANS } from './tariff.js';
 import { PERIOD_MODES } from './period.js';
@@ -182,33 +180,6 @@ export function sanitizeSettings(s) {
   if (typeof s.carPhoto === 'string' && s.carPhoto.startsWith('data:image/') && s.carPhoto.length < 400000) out.carPhoto = s.carPhoto;
   out.homeLayout = sanitizeLayout(s.homeLayout);
   return out;
-}
-
-export function loadState() {
-  const fresh = { settings: defaultSettings(), charges: [], bills: [], odos: [], demo: false, fresh: true };
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return fresh;
-    const p = JSON.parse(raw);
-    return {
-      settings: sanitizeSettings(p.settings),
-      charges: (Array.isArray(p.charges) ? p.charges : []).map(sanitizeCharge).filter(Boolean),
-      bills: (Array.isArray(p.bills) ? p.bills : []).map(sanitizeBill).filter(Boolean),
-      odos: (Array.isArray(p.odos) ? p.odos : []).map(sanitizeOdo).filter(Boolean),
-      demo: !!p.demo,
-      fresh: false,
-    };
-  } catch {
-    return fresh;
-  }
-}
-
-export function saveState(state) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(state));
-  } catch {
-    /* التخزين ممتلئ أو غير متاح */
-  }
 }
 
 export function makeBackup(state) {
