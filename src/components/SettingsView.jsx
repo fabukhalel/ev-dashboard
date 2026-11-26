@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Download, Upload, FileSpreadsheet, FileText, FlaskConical, Trash2, Car, SlidersHorizontal, Palette, CalendarRange, Gauge, User } from 'lucide-react';
-import { parseNum } from '../lib/format.js';
+import { Download, Upload, Share2, History, ShieldCheck, FileSpreadsheet, FileText, FlaskConical, Trash2, Car, SlidersHorizontal, Palette, CalendarRange, Gauge, User } from 'lucide-react';
+import { parseNum, formatDate, ymd } from '../lib/format.js';
+import { backupDate } from '../lib/autoBackup.js';
 import { MIN_FONT_PX, MAX_FONT_PX, DEFAULT_CAR_COLOR } from '../lib/storage.js';
 import { PALETTES, FONT_STACKS } from '../lib/theme.js';
 import DateField from './DateField.jsx';
@@ -52,6 +53,7 @@ function Section({ title, icon: Icon, children }) {
 
 export default function SettingsView({
   settings, count, onChange, onReset, onExportCsv, onExportBackup, onImportBackup, onPhoto, onDemo, onClear, onCustomize, onPdf, onAddOdo, bills = [],
+  autoBackups = null, onAutoBackupNow, onShareAutoBackup, onRestoreAutoBackup,
 }) {
   const { t } = useI18n();
   const fileRef = useRef(null);
@@ -268,6 +270,24 @@ export default function SettingsView({
           ref={fileRef} type="file" accept="application/json,.json" className="hidden"
           onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportBackup(f); e.target.value = ''; }}
         />
+        {autoBackups && (
+          <div className="space-y-2 rounded-xl bg-white/[0.04] p-3" data-testid="auto-backups">
+            <p className="flex items-center gap-1.5 text-sm font-extrabold"><ShieldCheck size={16} className="text-accent" /> {t('ab_title')}</p>
+            <p className="text-xs text-slate-400">
+              {autoBackups.last ? t('ab_last', { d: formatDate(ymd(new Date(autoBackups.last))) }) : t('ab_none')} · {t('ab_hint')}
+            </p>
+            {autoBackups.list.map((name) => (
+              <div key={name} className="flex items-center justify-between gap-2 text-sm">
+                <span dir="ltr" className="tabular font-bold">{formatDate(backupDate(name))}</span>
+                <span className="flex gap-1.5">
+                  <button type="button" className="btn-ghost !px-2.5 !py-1.5 text-xs" onClick={() => onShareAutoBackup(name)}><Share2 size={14} /> {t('ab_share')}</button>
+                  <button type="button" className="btn-ghost !px-2.5 !py-1.5 text-xs" onClick={() => onRestoreAutoBackup(name)}><History size={14} /> {t('ab_restore')}</button>
+                </span>
+              </div>
+            ))}
+            <button type="button" className="btn-ghost w-full text-xs" onClick={onAutoBackupNow} disabled={!count}>{t('ab_now')}</button>
+          </div>
+        )}
       </Section>
 
       <Section title={t('s_tools')}>

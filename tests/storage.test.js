@@ -1,18 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   defaultSettings, sanitizeCharge, sanitizeBill, sanitizeOdo, sanitizeLayout, sanitizeTariff, sanitizeSettings,
-  loadState, saveState, makeBackup, parseBackup,
+  makeBackup, parseBackup,
 } from '../src/lib/storage.js';
-
-function memoryStorage() {
-  const m = new Map();
-  return {
-    getItem: (k) => (m.has(k) ? m.get(k) : null),
-    setItem: (k, v) => m.set(k, String(v)),
-    removeItem: (k) => m.delete(k),
-    clear: () => m.clear(),
-  };
-}
 
 const good = { id: 'x', date: '2026-11-01', time: '21:30', socBefore: '20', socAfter: 80, energyKwh: 36.3, pricePerKwh: 0.1, totalCost: 3.63, type: 'home', odometer: '18000', note: 'n', createdAt: 5 };
 
@@ -76,29 +66,6 @@ describe('sanitize', () => {
 });
 
 describe('load / save / backup', () => {
-  beforeEach(() => {
-    vi.stubGlobal('localStorage', memoryStorage());
-  });
-
-  it('loadState on empty storage is fresh', () => {
-    const s = loadState();
-    expect(s.fresh).toBe(true);
-    expect(s.charges).toEqual([]);
-  });
-
-  it('save then load round-trips and sanitizes', () => {
-    saveState({ settings: { ...defaultSettings(), userName: 'Fadi' }, charges: [good, { bad: true }], bills: [], odos: [], demo: false });
-    const s = loadState();
-    expect(s.fresh).toBe(false);
-    expect(s.settings.userName).toBe('Fadi');
-    expect(s.charges).toHaveLength(1);
-  });
-
-  it('corrupted storage falls back to fresh state', () => {
-    localStorage.setItem('ev-dashboard:v1', '{not json');
-    expect(loadState().fresh).toBe(true);
-  });
-
   it('backup round-trip keeps charges, bills and odometer readings', () => {
     const state = { settings: defaultSettings(), charges: [good], bills: [{ id: 'b', start: '2026-10-06', end: '2026-11-05', kwh: 700, amount: null }], odos: [{ id: 'o', date: '2026-11-02', km: 18100 }] };
     const text = makeBackup(state);

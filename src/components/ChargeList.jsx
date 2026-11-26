@@ -9,7 +9,7 @@ import { useI18n } from '../lib/i18n.jsx';
 export function ChargeItem({ c, currency, eff, onEdit, onDelete }) {
   const { t, lang } = useI18n();
   return (
-    <div className="card p-3.5 transition hover:border-accent/30">
+    <div className="card p-3.5 transition hover:border-accent/30" data-testid="charge-item">
       <div className="flex items-start justify-between gap-2">
         <button type="button" onClick={() => onEdit(c)} className="min-w-0 flex-1 text-start" aria-label={t('edit')}>
           <div className="text-sm font-bold">

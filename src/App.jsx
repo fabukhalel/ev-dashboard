@@ -15,7 +15,10 @@ import CarImage from './components/CarImage.jsx';
 import { Empty, Toast, Segmented, C } from './components/ui.jsx';
 import { useConfirm } from './components/ConfirmSheet.jsx';
 import { I18nProvider, makeT } from './lib/i18n.jsx';
-import { loadState, saveState, makeBackup, parseBackup, defaultSettings } from './lib/storage.js';
+import { makeBackup, parseBackup, defaultSettings } from './lib/storage.js';
+import { loadPersisted, createSaver } from './lib/persist.js';
+import { getBackend, getBackupFs, onBackground, shareBackupFile } from './lib/platform.js';
+import { maybeAutoBackup, listBackups, BACKUP_DIR, KEY_LAST } from './lib/autoBackup.js';
 import { computeSegments, summarize, byMonth, sortChrono } from './lib/calc.js';
 import { resolvePeriod, inPeriod } from './lib/period.js';
 import { collectReadings } from './lib/odo.js';
@@ -37,13 +40,38 @@ const TABS = [
 
 const CURRENCY_BY_LANG = { ar: 'د.أ', en: 'JOD' };
 
+/** يحمّل البيانات المحفوظة (غير متزامن) ثم يعرض التطبيق */
 export default function App() {
-  // أول فتح: نعرض بيانات تجريبية موسومة بوضوح حتى يرى المستخدم ما يفعله التطبيق
-  const [state, setState] = useState(() => {
-    const s = loadState();
-    if (s.fresh) return { settings: s.settings, charges: makeDemoCharges(s.settings.capacity, s.settings), bills: [], odos: [], demo: true };
-    return { settings: s.settings, charges: s.charges, bills: s.bills, odos: s.odos, demo: s.demo };
-  });
+  const [boot, setBoot] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const backend = await getBackend();
+      let res;
+      try {
+        res = await loadPersisted(backend);
+      } catch {
+        res = { state: null, source: 'corrupt' };
+      }
+      let initial = res.state;
+      if (!initial) {
+        const settings = defaultSettings();
+        // أول فتح: بيانات تجريبية موسومة بوضوح حتى يرى المستخدم ما يفعله التطبيق
+        initial = res.source === 'fresh'
+          ? { settings, charges: makeDemoCharges(settings.capacity, settings), bills: [], odos: [], demo: true }
+          : { settings, charges: [], bills: [], odos: [], demo: false };
+      }
+      const fs = await getBackupFs();
+      if (alive) setBoot({ initial, backend, fs, source: res.source, photo: res.source === 'data' ? initial.settings.carPhoto || '' : null });
+    })();
+    return () => { alive = false; };
+  }, []);
+  if (!boot) return <div className="min-h-screen bg-ink-950" aria-busy="true" />;
+  return <AppMain boot={boot} />;
+}
+
+function AppMain({ boot }) {
+  const [state, setState] = useState(boot.initial);
   const { settings, charges, bills, odos } = state;
   const lang = settings.lang;
   const t = useMemo(() => makeT(lang), [lang]);
@@ -61,7 +89,28 @@ export default function App() {
   const [settingsKey, setSettingsKey] = useState(0);
   const toastTimer = useRef(null);
 
-  useEffect(() => saveState(state), [state]);
+  // ---- الحفظ الدائم: مؤجَّل 300ms، ويُفرَّغ فوراً عند ذهاب التطبيق للخلفية ----
+  const [saveError, setSaveError] = useState(false);
+  const saver = useMemo(() => createSaver(boot.backend, { initialPhoto: boot.photo, onResult: (ok) => setSaveError(!ok) }), [boot]);
+  const firstSave = useRef(boot.source === 'data');
+  useEffect(() => {
+    // لا داعي لإعادة كتابة ما حُمّل للتو كما هو
+    if (firstSave.current) { firstSave.current = false; return; }
+    saver.schedule(state);
+  }, [state, saver]);
+  useEffect(() => onBackground(() => { saver.flush(); }), [saver]);
+
+  // ---- النسخ الاحتياطي التلقائي الأسبوعي (على الهاتف) ----
+  const [autoBackups, setAutoBackups] = useState({ list: [], last: null });
+  const refreshAutoBackups = useCallback(async () => {
+    if (!boot.fs) return;
+    const last = Number(await boot.backend.get(KEY_LAST)) || null;
+    setAutoBackups({ list: await listBackups(boot.fs), last });
+  }, [boot]);
+  useEffect(() => {
+    if (!boot.fs) return;
+    maybeAutoBackup(boot.initial, { fs: boot.fs, store: boot.backend }).catch(() => {}).finally(refreshAutoBackups);
+  }, [boot, refreshAutoBackups]);
   useEffect(() => () => clearTimeout(toastTimer.current), []);
   useEffect(() => { window.scrollTo({ top: 0 }); }, [tab]);
 
@@ -245,13 +294,43 @@ export default function App() {
 
   const importBackup = async (file) => {
     try {
-      const data = parseBackup(await file.text());
-      if (charges.length && !state.demo && !(await ask(t('confirm_replace', { n: data.charges.length }), t('replace')))) return;
-      setState({ ...data, demo: false });
-      setSettingsKey((k) => k + 1);
-      notify(t('t_restored', { n: data.charges.length }));
+      await applyBackupText(await file.text());
     } catch (e) {
       notify(e instanceof SyntaxError ? t('t_bad_file') : e.message === 'invalid_backup' ? t('t_bad_backup') : t('t_bad_file'));
+    }
+  };
+
+  const applyBackupText = async (text) => {
+    const data = parseBackup(text);
+    if (charges.length && !state.demo && !(await ask(t('confirm_replace', { n: data.charges.length }), t('replace')))) return;
+    setState({ ...data, demo: false });
+    setSettingsKey((k) => k + 1);
+    notify(t('t_restored', { n: data.charges.length }));
+  };
+
+  const autoBackupNow = async () => {
+    try {
+      const r = await maybeAutoBackup(state, { fs: boot.fs, store: boot.backend, force: true });
+      notify(r.written ? t('t_backup') : t('ab_nothing'));
+    } catch {
+      notify(t('t_backup_fail'));
+    }
+    refreshAutoBackups();
+  };
+
+  const shareAutoBackup = async (name) => {
+    try {
+      await shareBackupFile(boot.fs, `${BACKUP_DIR}/${name}`);
+    } catch {
+      /* أُلغيت المشاركة */
+    }
+  };
+
+  const restoreAutoBackup = async (name) => {
+    try {
+      await applyBackupText(await boot.fs.read(`${BACKUP_DIR}/${name}`));
+    } catch {
+      notify(t('t_bad_backup'));
     }
   };
 
@@ -492,6 +571,10 @@ export default function App() {
               onReset={resetSettings}
               onExportCsv={exportCsv}
               onExportBackup={exportBackup}
+              autoBackups={boot.fs ? autoBackups : null}
+              onAutoBackupNow={autoBackupNow}
+              onShareAutoBackup={shareAutoBackup}
+              onRestoreAutoBackup={restoreAutoBackup}
               onImportBackup={importBackup}
               onPhoto={setPhoto}
               onDemo={loadDemo}
@@ -554,6 +637,12 @@ export default function App() {
           layout={settings.homeLayout}
           onChange={changeSettings}
         />
+        {saveError && (
+          <div role="alert" className="fixed inset-x-0 top-0 z-[70] flex items-center justify-between gap-3 bg-fast px-4 py-2.5 text-sm font-bold text-white" style={{ paddingTop: 'max(0.625rem, env(safe-area-inset-top))' }} data-testid="save-error">
+            <span>{t('save_failed')}</span>
+            <button type="button" className="shrink-0 rounded-full bg-white/20 px-3 py-1 text-xs font-extrabold" onClick={exportBackup}>{t('save_failed_btn')}</button>
+          </div>
+        )}
         {confirmNode}
         <Toast message={toast} />
       </div>
