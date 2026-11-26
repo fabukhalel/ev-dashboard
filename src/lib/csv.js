@@ -25,7 +25,7 @@ export function chargesToCsv(charges, t) {
     c.note ?? '',
   ]);
   // BOM ضروري ليفتح Excel الملف بترميز UTF-8 ويعرض العربية صحيحة
-  return `﻿${[headers, ...rows].map((r) => r.map(esc).join(',')).join('\r\n')}`;
+  return `\uFEFF${[headers, ...rows].map((r) => r.map(esc).join(',')).join('\r\n')}`;
 }
 
 /** حفظ ملف: تنزيل في المتصفح، أو مشاركة/حفظ عبر Capacitor داخل تطبيق أندرويد */

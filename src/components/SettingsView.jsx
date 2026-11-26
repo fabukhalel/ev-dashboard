@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Download, Upload, FileSpreadsheet, FileText, FlaskConical, Trash2, Car, SlidersHorizontal, Palette, CalendarRange, Gauge, User } from 'lucide-react';
-import { parseNum, formatDate } from '../lib/format.js';
+import { parseNum } from '../lib/format.js';
 import { MIN_FONT_PX, MAX_FONT_PX, DEFAULT_CAR_COLOR } from '../lib/storage.js';
 import { PALETTES, FONT_STACKS } from '../lib/theme.js';
 import DateField from './DateField.jsx';

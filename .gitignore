@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.env
+.env.*
+!.env.example
+# مفاتيح التوقيع لا تُرفع أبداً (تُحفظ في GitHub Secrets)
+*.jks
+*.keystore
+keystore.properties
+android/local.properties
+android/app/build/
+android/build/
+android/.gradle/

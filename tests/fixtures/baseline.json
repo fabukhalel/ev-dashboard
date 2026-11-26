@@ -1,0 +1,76 @@
+{
+  "today": "2026-11-26",
+  "count": 39,
+  "firstDate": "2026-07-01",
+  "lastDate": "2026-11-23",
+  "summary": {
+    "energy": 1391.039,
+    "cost": 187.368,
+    "distance": 8262,
+    "efficiency": 16.3608,
+    "costPerKm": 0.0233,
+    "avgPrice": 0.1347
+  },
+  "overallEfficiency": 16.3608,
+  "segments": 38,
+  "months": [
+    {
+      "key": "2026-07",
+      "count": 8,
+      "energy": 300.585,
+      "cost": 35.503,
+      "efficiency": 16.2831
+    },
+    {
+      "key": "2026-08",
+      "count": 7,
+      "energy": 238.896,
+      "cost": 36.863,
+      "efficiency": 16.3187
+    },
+    {
+      "key": "2026-09",
+      "count": 8,
+      "energy": 297.562,
+      "cost": 29.756,
+      "efficiency": 16.3059
+    },
+    {
+      "key": "2026-10",
+      "count": 8,
+      "energy": 301.189,
+      "cost": 43.454,
+      "efficiency": 16.4393
+    },
+    {
+      "key": "2026-11",
+      "count": 8,
+      "energy": 252.807,
+      "cost": 41.792,
+      "efficiency": 16.4509
+    }
+  ],
+  "types": {
+    "home": {
+      "count": 28,
+      "energy": 1069.286
+    },
+    "fast": {
+      "count": 11,
+      "energy": 321.753
+    }
+  },
+  "october": {
+    "count": 8,
+    "energy": 301.189,
+    "cost": 43.454,
+    "distance": 1913.7,
+    "efficiency": 15.7386
+  },
+  "bill": {
+    "homeKwh": 206.236,
+    "months": 1,
+    "impact": 30.624,
+    "billWith": 65
+  }
+}
