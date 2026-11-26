@@ -103,7 +103,7 @@ export function monthLabel(key, lang = 'ar') {
 }
 
 /** اسم الشهر المختصر بالإنجليزية: Oct 26 (أو Oct فقط عند withYear=false) */
-export function monthShort(key, lang = 'ar', withYear = true) {
+export function monthShort(key, _lang = 'ar', withYear = true) {
   const [y, m] = key.split('-').map(Number);
   const name = MONTHS.en[m - 1].slice(0, 3);
   return withYear ? `${name} ${String(y).slice(2)}` : name;

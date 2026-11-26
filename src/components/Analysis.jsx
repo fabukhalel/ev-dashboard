@@ -85,7 +85,7 @@ export default function Analysis({ charges, bills, readings, odos, settings, onA
         <section className="card p-4" aria-label={t('an_table')}>
           <h3 className="mb-3 text-base font-extrabold">{t('an_table')}</h3>
           <div className="space-y-2.5">
-            {[...rowsData].reverse().map(({ p, s, label, impact }) => (
+            {[...rowsData].reverse().map(({ p, s, impact }) => (
               <div key={p.key} className="rounded-xl border border-white/10 bg-ink-900/50 p-3" data-testid="an-row">
                 <div className="flex items-center justify-between gap-2">
                   <b dir="ltr" className="tabular text-sm">{p.kind === 'month' ? monthShort(p.key, 'en') : `${formatDate(p.start)} → ${formatDate(p.end)}`}</b>

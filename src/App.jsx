@@ -128,10 +128,6 @@ export default function App() {
   const periodSegments = useMemo(() => allSegments.filter((s) => inPeriod(s.date, period)), [allSegments, period]);
   const periodSummary = useMemo(() => summarize(periodCharges, periodSegments), [periodCharges, periodSegments]);
   const months = useMemo(() => byMonth(charges, allSegments), [charges, allSegments]);
-  const lastOdo = useMemo(() => {
-    const withOdo = sortChrono(charges).filter((c) => c.odometer != null);
-    return withOdo.length ? withOdo[withOdo.length - 1].odometer : null;
-  }, [charges]);
   const recent = useMemo(() => sortChrono(periodCharges).reverse().slice(0, 4), [periodCharges]);
   const readings = useMemo(() => collectReadings(charges, odos), [charges, odos]);
   const periodStat = useMemo(() => periodStats(charges, readings, period), [charges, readings, period]);
@@ -142,7 +138,6 @@ export default function App() {
     return ds.length ? { start: ds[0], end: ds[ds.length - 1] } : null;
   }, [period, charges]);
   const lastMonths = useMemo(() => months.slice(-3), [months]);
-  const effById = useMemo(() => new Map(allSegments.map((s) => [s.endId, s.efficiency])), [allSegments]);
 
   // ---- العمليات ----
   const openAdd = () => setForm({ open: true, charge: null });
