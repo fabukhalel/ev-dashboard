@@ -84,6 +84,8 @@ describe('sanitize', () => {
     expect(sanitizeSettings({ periodMode: 'prev' }).periodMode).toBe('month');
     // من اختار حجماً أكبر يبقى عليه
     expect(sanitizeSettings({ fontPx: 17 }).fontPx).toBe(17);
+    expect(sanitizeSettings({ palette: 'lime', fontPx: 12 }).fontPx).toBe(12);
+    expect(sanitizeSettings({ palette: 'lime', fontPx: 11 }).fontPx).toBe(15);
   });
 
   it('keeps the tier fields of a home charge only', () => {

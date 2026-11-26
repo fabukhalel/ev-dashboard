@@ -8,7 +8,8 @@ export default {
     extend: {
       fontFamily: { sans: 'var(--font)' },
       // لا نص أصغر من 12px عند الحجم الافتراضي 15px (V2)
-      fontSize: { xs: ['0.8rem', { lineHeight: '1.15rem' }] },
+      // الخط الأصغر لا ينزل عن 12px حتى لو صغّر المستخدم حجم الخط العام
+      fontSize: { xs: ['max(12px, 0.8rem)', { lineHeight: '1.15rem' }], sm: ['max(12px, 0.875rem)', { lineHeight: '1.25rem' }] },
       colors: {
         white: v('c-white'), // في الوضع النهاري يتحوّل إلى لون داكن لتبقى الحدود والتراكبات ظاهرة
         slate: { 100: v('s100'), 200: v('s200'), 300: v('s300'), 400: v('s400'), 500: v('s500'), 600: v('s600') },
