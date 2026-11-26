@@ -2,6 +2,11 @@ name: Build Android APK
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish this build as a GitHub Release (v + version from package.json)'
+        type: boolean
+        default: false
   push:
     tags: ['v*']
 
@@ -91,8 +96,17 @@ jobs:
           name: ev-dashboard-apk
           path: ${{ steps.apk.outputs.file }}
 
-      - name: Publish to GitHub Releases (tags only)
-        if: startsWith(github.ref, 'refs/tags/v')
+      # النشر: عند tag يبدأ بـ v، أو تشغيل يدوي على main مع publish = true.
+      # إن كان الإصدار موجوداً (أُنشئ من صفحة GitHub مثلاً) يُرفع الملف إليه بدل إنشائه من جديد.
+      - name: Publish to GitHub Releases
+        if: startsWith(github.ref, 'refs/tags/v') || (inputs.publish && github.ref == 'refs/heads/main')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" "${{ steps.apk.outputs.file }}" --title "${{ github.ref_name }}" --generate-notes
+          APK: ${{ steps.apk.outputs.file }}
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then TAG="${GITHUB_REF_NAME}"; else TAG="v$(node -p "require('./package.json').version")"; fi
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" --clobber
+          else
+            gh release create "$TAG" "$APK" --title "$TAG" --target "$GITHUB_SHA" --generate-notes
+          fi
