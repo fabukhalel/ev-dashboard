@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { pushBack } from '../lib/backStack.js';
 import { X } from 'lucide-react';
 import { useI18n } from '../lib/i18n.jsx';
 
@@ -33,17 +34,19 @@ export function TypeBadge({ type }) {
 /** نافذة سفلية (Bottom Sheet) */
 export function Sheet({ open, onClose, title, children }) {
   const { t } = useI18n();
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
     if (!open) return undefined;
-    const onKey = (e) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
+    // تسجيل النافذة في مكدس الرجوع (زر الرجوع في أندرويد / Escape)
+    const pop = pushBack(() => closeRef.current());
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
-      window.removeEventListener('keydown', onKey);
+      pop();
       document.body.style.overflow = prev;
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
   return (
@@ -119,7 +122,7 @@ export function Empty({ icon: Icon, title, hint, children }) {
 export function Toast({ message }) {
   if (!message) return null;
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-[60] flex justify-center px-4">
+    <div className="pointer-events-none fixed inset-x-0 z-[60] flex justify-center px-4" style={{ bottom: 'calc(6rem + max(env(safe-area-inset-bottom), var(--safe-area-inset-bottom, 0px)))' }}>
       <div className="animate-toast rounded-full border border-white/10 bg-ink-700 px-4 py-2 text-sm font-bold shadow-glow">{message}</div>
     </div>
   );
