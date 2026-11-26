@@ -33,10 +33,15 @@ describe('sanitize', () => {
   });
 
   it('sanitizeLayout drops unknown/duplicate sections and adds missing ones', () => {
-    expect(sanitizeLayout([{ id: 'charges', visible: false }, { id: 'charges' }, { id: 'hack' }])).toEqual([
-      { id: 'summary', visible: true },
-      { id: 'charges', visible: false },
+    expect(sanitizeLayout([{ id: 'recent', visible: false }, { id: 'recent' }, { id: 'hack' }])).toEqual([
+      { id: 'hero', visible: true },
+      { id: 'stats', visible: true },
+      { id: 'bill', visible: true },
+      { id: 'recent', visible: false },
     ]);
+    // الشكل القديم (summary/charges) يُرحَّل للأقسام الجديدة مع الترتيب والإخفاء
+    expect(sanitizeLayout([{ id: 'charges', visible: true }, { id: 'summary', visible: false }]).map((x) => `${x.id}:${x.visible}`))
+      .toEqual(['recent:true', 'hero:false', 'stats:false', 'bill:true']);
     expect(sanitizeLayout(null)).toEqual(defaultSettings().homeLayout);
   });
 
@@ -53,15 +58,38 @@ describe('sanitize', () => {
   });
 
   it('sanitizeSettings clamps and validates', () => {
-    const s = sanitizeSettings({ capacity: 9999, lang: 'fr', theme: 'dark', fontSize: 'lg', colors: { accent: '#ABCDEF', home: 'red' }, carPhoto: 'javascript:alert(1)', userName: 'x'.repeat(100) });
+    const s = sanitizeSettings({ capacity: 9999, lang: 'fr', theme: 'dark', fontSize: 'lg', palette: 'teal', carPhoto: 'javascript:alert(1)', userName: 'x'.repeat(100), cycleStartDay: 31, tierDays: { low: 12, high: -1 }, recentCount: 7 });
     expect(s.capacity).toBe(60.48);
     expect(s.lang).toBe('ar');
     expect(s.theme).toBe('dark');
     expect(s.fontPx).toBe(16);
-    expect(s.colors).toEqual({ accent: '#abcdef', home: '', fast: '' });
+    expect(s.palette).toBe('teal');
+    expect(s.cycleStartDay).toBe(6);
+    expect(s.tierDays).toEqual({ low: 12, high: 7 });
+    expect(s.recentCount).toBe(5);
     expect(s.carPhoto).toBe('');
     expect(s.userName).toHaveLength(40);
     expect(sanitizeSettings('nope')).toEqual(defaultSettings());
+  });
+
+  it('migrates settings from before the new design', () => {
+    const s = sanitizeSettings({ fontPx: 13, periodMode: 'bill', fontFamily: 'cairo', colors: { accent: '#ffffff' }, homePrice: 0.1 });
+    expect(s.palette).toBe('lime');
+    expect(s.fontPx).toBe(15);
+    expect(s.periodMode).toBe('cycle');
+    expect(s).not.toHaveProperty('fontFamily');
+    expect(s).not.toHaveProperty('colors');
+    expect(s).not.toHaveProperty('homePrice');
+    expect(sanitizeSettings({ periodMode: 'all' })).toMatchObject({ periodMode: 'custom', periodPreset: 'all' });
+    expect(sanitizeSettings({ periodMode: 'prev' }).periodMode).toBe('month');
+    // من اختار حجماً أكبر يبقى عليه
+    expect(sanitizeSettings({ fontPx: 17 }).fontPx).toBe(17);
+  });
+
+  it('keeps the tier fields of a home charge only', () => {
+    expect(sanitizeCharge({ ...good, tier: 2, tierSource: 'manual' })).toMatchObject({ tier: 2, tierSource: 'manual' });
+    expect(sanitizeCharge({ ...good, type: 'fast', tier: 1, tierSource: 'auto' }).tierSource).toBeNull();
+    expect(sanitizeCharge({ ...good, tier: 9, tierSource: 'x' })).toMatchObject({ tier: null, tierSource: null });
   });
 });
 

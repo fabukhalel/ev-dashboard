@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { StoreProvider, useStore, useUi } from './state/store.jsx';
 import { useAppearance, useNativeBehavior } from './hooks/useAppShell.js';
-import { AppHeader, BottomNav, Overlays } from './components/AppChrome.jsx';
-import Home from './pages/Home.jsx';
+import { BottomNav, Overlays } from './components/AppChrome.jsx';
+import Home, { HomeHeader } from './pages/Home.jsx';
 import Charges from './pages/Charges.jsx';
 import Analysis from './pages/Analysis.jsx';
 import Bill from './pages/Bill.jsx';
@@ -11,7 +11,8 @@ import { I18nProvider } from './lib/i18n.jsx';
 import { defaultSettings } from './lib/storage.js';
 import { loadPersisted } from './lib/persist.js';
 import { getBackend, getBackupFs } from './lib/platform.js';
-import { makeDemoCharges } from './lib/demo.js';
+import { makeDemo } from './lib/demo.js';
+import { retier } from './lib/tiers.js';
 
 const PAGES = { home: Home, list: Charges, analysis: Analysis, bill: Bill, settings: Settings };
 
@@ -33,7 +34,7 @@ export default function App() {
         const settings = defaultSettings();
         // أول فتح: بيانات تجريبية موسومة بوضوح حتى يرى المستخدم ما يفعله التطبيق
         initial = res.source === 'fresh'
-          ? { settings, charges: makeDemoCharges(settings.capacity, settings), bills: [], odos: [], demo: true }
+          ? { settings, ...makeDemo(settings, new Date(), (list) => retier(list, settings, [])), bills: [], demo: true }
           : { settings, charges: [], bills: [], odos: [], demo: false };
       }
       const fs = await getBackupFs();
@@ -57,17 +58,16 @@ function Shell() {
   const Page = PAGES[tab] || Home;
   return (
     <I18nProvider lang={lang}>
-      <div className="mx-auto min-h-screen w-full max-w-lg pb-32">
-        <AppHeader />
+      <div className="mx-auto min-h-screen w-full max-w-lg pb-40">
+        {tab === 'home' ? <HomeHeader /> : <div className="safe-top" />}
         <main className="space-y-4 px-4 pt-4">
           {state.demo && (
-            <div className="flex items-center justify-between gap-3 rounded-xl border border-fast/40 bg-fast/10 px-3.5 py-2.5">
-              <p className="text-xs font-medium leading-relaxed text-fast">{t('demo_banner')}</p>
+            <div className="flex items-center justify-between gap-3 rounded-[1.5rem] px-4 py-3" style={{ background: 'color-mix(in srgb, rgb(var(--fast)) 12%, transparent)' }}>
+              <p className="text-sm font-medium leading-relaxed" style={{ color: 'rgb(var(--fast))' }}>{t('demo_banner')}</p>
               <button className="btn-ghost shrink-0 !px-3 !py-1.5 text-xs" onClick={actions.startFresh}>{t('start_fresh')}</button>
             </div>
           )}
           <Page />
-          <p dir="ltr" className="pt-2 text-center text-[0.7rem] text-slate-500">{t('dev_by')}</p>
         </main>
         <BottomNav />
         <Overlays />

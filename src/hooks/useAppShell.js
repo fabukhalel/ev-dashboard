@@ -21,10 +21,9 @@ export function useAppearance() {
     const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     const apply = () => {
       const eff = settings.theme === 'system' ? (mq && !mq.matches ? 'light' : 'dark') : settings.theme;
-      root.dataset.theme = eff;
-      applyAppearance(root, settings, eff);
+      const bar = applyAppearance(root, settings, eff);
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', eff === 'light' ? '#eaf7fa' : '#07121f');
+      if (meta) meta.setAttribute('content', bar);
       const scheme = document.querySelector('meta[name="color-scheme"]');
       if (scheme) scheme.setAttribute('content', eff);
       syncSystemBars(eff);
@@ -33,7 +32,7 @@ export function useAppearance() {
     if (settings.theme !== 'system' || !mq) return undefined;
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
-  }, [settings.theme, settings.colors, settings.fontFamily, settings.fontPx]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [settings.theme, settings.palette, settings.fontPx]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 export function useNativeBehavior() {

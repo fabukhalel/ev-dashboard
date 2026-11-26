@@ -1,13 +1,16 @@
 // تنظيف البيانات + النسخ الاحتياطي JSON (الحفظ الدائم في persist.js)
 
 import { defaultTariff, TARIFF_PLANS } from './tariff.js';
-import { PERIOD_MODES } from './period.js';
+import { PERIOD_KINDS, CUSTOM_PRESETS, DEFAULT_CYCLE_DAY, migratePeriodMode } from './cycle.js';
+import { DEFAULT_TIER_DAYS } from './tiers.js';
 
-export const HOME_SECTIONS = ['summary', 'charges'];
+export const HOME_SECTIONS = ['hero', 'stats', 'bill', 'recent'];
+export const PALETTE_IDS = ['lime', 'teal'];
+export const RECENT_COUNTS = [3, 5, 10];
 const THEMES = ['system', 'dark', 'light'];
-export const FONT_FAMILIES = ['tajawal', 'cairo', 'almarai', 'system'];
 const OLD_FONT_PX = { sm: 13, md: 14.5, lg: 16 };
-export const MIN_FONT_PX = 11;
+export const MIN_FONT_PX = 13;
+export const DEFAULT_FONT_PX = 15;
 export const MAX_FONT_PX = 19;
 const STYLES = ['auto', 'sedan', 'suv', 'hatch', 'pickup', 'yuan'];
 export const DEFAULT_CAR_COLOR = '#9aa5b4'; // فضي محايد للرسم الاحتياطي
@@ -23,28 +26,31 @@ export function defaultSettings() {
     carModel: 'Yuan Plus',
     capacity: 60.48, // kWh
     currency: 'د.أ',
-    homePrice: 0.1, // لكل kWh — عدّله حسب تعرفتك
-    fastPrice: 0.25,
+    fastPrice: 0.25, // السعر الافتراضي لكيلوواط الشحن السريع
     defaultEfficiency: 16, // kWh/100km حتى تتوفر قراءات عداد كافية
     lang: 'ar',
     theme: 'system',
-    fontPx: 13,
-    fontFamily: 'tajawal',
-    colors: { accent: '', home: '', fast: '' }, // فارغ = ألوان الثيم الافتراضية
+    palette: 'lime', // ليموني (افتراضي) | فيروزي
+    fontPx: DEFAULT_FONT_PX,
     carColor: DEFAULT_CAR_COLOR,
-    periodMode: 'month', // month | prev | custom | all | bill
-    periodBillId: '',
+    periodMode: 'month', // month | cycle | custom
+    periodPreset: '', // للمخصص: last7 | last30 | all | '' (من/إلى)
     periodStart: '',
     periodEnd: '',
+    cycleStartDay: DEFAULT_CYCLE_DAY, // يوم بداية دورة الفاتورة (1..28)
+    tierDays: { ...DEFAULT_TIER_DAYS }, // أول N أيام = الشريحة الأولى، آخر M أيام = العليا
     tariff: defaultTariff(),
     bill: { start: '', end: '', total: '', loss: '' },
-    allowManualEnergy: false,
     carStyle: 'auto',
     carPhoto: '',
     homeLayout: [
-      { id: 'summary', visible: true },
-      { id: 'charges', visible: true },
+      { id: 'hero', visible: true },
+      { id: 'stats', visible: true },
+      { id: 'bill', visible: true },
+      { id: 'recent', visible: true },
     ],
+    recentCount: 5,
+    lastBackupAt: 0, // آخر نسخة احتياطية (ms): تصدير يدوي أو تلقائي
   };
 }
 
@@ -82,6 +88,8 @@ export function sanitizeCharge(r) {
     totalCost: toNum(r.totalCost) ?? 0,
     type: r.type === 'fast' ? 'fast' : 'home',
     odometer: toNum(r.odometer),
+    tier: Number.isInteger(r.tier) && r.tier >= 0 && r.tier < 4 ? r.tier : null,
+    tierSource: r.type !== 'fast' && (r.tierSource === 'auto' || r.tierSource === 'manual') ? r.tierSource : null,
     note: String(r.note || '').slice(0, 200),
     createdAt: toNum(r.createdAt) || Date.now(),
   };
@@ -111,6 +119,8 @@ export function sanitizeLayout(raw) {
   const seen = new Set();
   const out = [];
   if (Array.isArray(raw)) {
+    // الشكل القديم: summary → البطاقة الرئيسية + التكلفة والعدد، charges → آخر الشحنات
+    raw = raw.flatMap((it) => (it && it.id === 'summary' ? [{ ...it, id: 'hero' }, { ...it, id: 'stats' }] : it && it.id === 'charges' ? [{ ...it, id: 'recent' }] : [it]));
     for (const it of raw) {
       if (it && HOME_SECTIONS.includes(it.id) && !seen.has(it.id)) {
         seen.add(it.id);
@@ -120,7 +130,10 @@ export function sanitizeLayout(raw) {
   }
   // أي قسم جديد غير موجود في المحفوظ يُضاف بحالته الافتراضية وفي موضعه الافتراضي
   base.forEach((b, i) => {
-    if (!seen.has(b.id)) out.splice(Math.min(i, out.length), 0, { ...b });
+    if (seen.has(b.id)) return;
+    // يوضع بعد القسم الذي يسبقه في الترتيب الافتراضي إن وُجد
+    const prev = i > 0 ? out.findIndex((x) => x.id === base[i - 1].id) : -1;
+    out.splice(prev >= 0 ? prev + 1 : Math.min(i, out.length), 0, { ...b });
   });
   return out;
 }
@@ -128,6 +141,7 @@ export function sanitizeLayout(raw) {
 export function sanitizeTariff(raw) {
   const out = defaultTariff();
   if (!raw || typeof raw !== 'object') return out;
+  if (typeof raw.effectiveFrom === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.effectiveFrom)) out.effectiveFrom = raw.effectiveFrom;
   if (['subsidized', 'unsubsidized', 'custom'].includes(raw.plan)) out.plan = raw.plan;
   const n = Array.isArray(raw.tiers) ? raw.tiers.length : 0;
   let ok = false;
@@ -153,29 +167,41 @@ export function sanitizeSettings(s) {
   for (const k of ['userName', 'carName', 'carModel', 'currency']) {
     if (typeof s[k] === 'string') out[k] = s[k].slice(0, 40);
   }
-  for (const k of ['capacity', 'homePrice', 'fastPrice', 'defaultEfficiency']) {
+  for (const k of ['capacity', 'fastPrice', 'defaultEfficiency']) {
     const n = toNum(s[k]);
     if (n != null && n >= 0) out[k] = n;
   }
   if (!(out.capacity >= MIN_CAPACITY && out.capacity <= MAX_CAPACITY)) out.capacity = defaultSettings().capacity;
   if (s.lang === 'ar' || s.lang === 'en') out.lang = s.lang;
   if (THEMES.includes(s.theme)) out.theme = s.theme;
-  const px = toNum(s.fontPx) ?? OLD_FONT_PX[s.fontSize];
+  // إعدادات ما قبل التصميم الجديد (بلا palette): الحجم الافتراضي القديم 13 يصبح 15
+  const legacy = !PALETTE_IDS.includes(s.palette);
+  if (!legacy) out.palette = s.palette;
+  let px = toNum(s.fontPx) ?? OLD_FONT_PX[s.fontSize];
+  if (legacy && (px == null || px <= 13)) px = DEFAULT_FONT_PX;
   if (px != null && px >= MIN_FONT_PX && px <= MAX_FONT_PX) out.fontPx = px;
-  if (FONT_FAMILIES.includes(s.fontFamily)) out.fontFamily = s.fontFamily;
-  if (s.colors && typeof s.colors === 'object') {
-    for (const k of ['accent', 'home', 'fast']) if (typeof s.colors[k] === 'string' && HEX.test(s.colors[k])) out.colors[k] = s.colors[k].toLowerCase();
-  }
   if (typeof s.carColor === 'string' && HEX.test(s.carColor)) out.carColor = s.carColor;
-  if (PERIOD_MODES.includes(s.periodMode)) out.periodMode = s.periodMode;
-  if (typeof s.periodBillId === 'string') out.periodBillId = s.periodBillId.slice(0, 60);
+  if (PERIOD_KINDS.includes(s.periodMode)) {
+    out.periodMode = s.periodMode;
+    if (CUSTOM_PRESETS.includes(s.periodPreset)) out.periodPreset = s.periodPreset;
+  } else Object.assign(out, migratePeriodMode(s.periodMode));
+  const day = toNum(s.cycleStartDay);
+  if (Number.isInteger(day) && day >= 1 && day <= 28) out.cycleStartDay = day;
+  if (s.tierDays && typeof s.tierDays === 'object') {
+    for (const k of ['low', 'high']) {
+      const n = toNum(s.tierDays[k]);
+      if (Number.isInteger(n) && n >= 0 && n <= 20) out.tierDays[k] = n;
+    }
+  }
+  if (RECENT_COUNTS.includes(s.recentCount)) out.recentCount = s.recentCount;
+  const lb = toNum(s.lastBackupAt);
+  if (lb != null && lb > 0) out.lastBackupAt = lb;
   for (const k of ['periodStart', 'periodEnd']) if (typeof s[k] === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s[k])) out[k] = s[k];
   out.tariff = sanitizeTariff(s.tariff);
   if (s.bill && typeof s.bill === 'object') {
     for (const k of ['start', 'end']) if (typeof s.bill[k] === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.bill[k])) out.bill[k] = s.bill[k];
     for (const k of ['total', 'loss']) if (typeof s.bill[k] === 'string' && s.bill[k].length < 12) out.bill[k] = s.bill[k];
   }
-  out.allowManualEnergy = s.allowManualEnergy === true;
   if (STYLES.includes(s.carStyle)) out.carStyle = s.carStyle;
   if (typeof s.carPhoto === 'string' && s.carPhoto.startsWith('data:image/') && s.carPhoto.length < 400000) out.carPhoto = s.carPhoto;
   out.homeLayout = sanitizeLayout(s.homeLayout);

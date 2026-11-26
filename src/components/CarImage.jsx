@@ -210,7 +210,7 @@ export default function CarImage({ settings, size = 'md', className = '' }) {
         </g>
       ))}
       {/* وسم البرق: إشارة إلى أنها كهربائية */}
-      <path d="M82 36 L76 44 L80.5 44 L78.5 50 L86 41 L81.5 41 Z" fill="rgb(var(--onaccent))" opacity="0.9" />
+      <path d="M82 36 L76 44 L80.5 44 L78.5 50 L86 41 L81.5 41 Z" fill="rgb(var(--onsolid))" opacity="0.9" />
     </svg>
   );
 }

@@ -34,19 +34,20 @@ export default function OdoSheet({ open, onClose, onSave, readings }) {
   };
 
   return (
-    <Sheet open={open} onClose={onClose} title={t('odo_add_title')}>
+    <Sheet open={open} onClose={onClose} title={t('odo_add_title')}
+      footer={<div className="flex gap-2"><button type="button" className="btn-ghost flex-1" onClick={onClose}>{t('cancel')}</button><button type="button" className="btn-primary flex-1 py-3.5" onClick={submit} data-testid="odo-save">{t('save')}</button></div>}>
       <div className="space-y-4">
-        <p className="text-xs leading-relaxed text-slate-400">{t('odo_add_hint')}</p>
+        <p className="text-sm leading-relaxed text-slate-400">{t('odo_add_hint')}</p>
         <DateField id="odo-date" label={t('date')} value={date} onChange={setDate} />
         <div>
           <label className="label" htmlFor="odo-km">{t('odo_km_label')}</label>
-          <input id="odo-km" inputMode="decimal" className="field tabular" value={km} onChange={(e) => { setKm(e.target.value); setErr(''); }} placeholder={last ? t('odo_last', { v: num(last.km, 0) }) : ''} />
+          <div className="relative" dir="ltr">
+            <input id="odo-km" inputMode="decimal" className="field tabular !py-4 pe-14 text-2xl font-bold" value={km} onChange={(e) => { setKm(e.target.value); setErr(''); }} placeholder={last ? num(last.km, 0) : '0'} />
+            <span className="pointer-events-none absolute end-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">km</span>
+          </div>
+          {last && <p className="mt-1.5 text-sm text-slate-400">{t('odo_last', { v: num(last.km, 0) })}</p>}
         </div>
-        {err && <p role="alert" className="text-xs font-medium text-danger">{err}</p>}
-        <div className="flex gap-2">
-          <button className="btn-ghost flex-1" onClick={onClose}>{t('cancel')}</button>
-          <button className="btn-primary flex-1" onClick={submit}>{t('save')}</button>
-        </div>
+        {err && <p role="alert" className="text-sm font-medium text-danger">{err}</p>}
       </div>
     </Sheet>
   );

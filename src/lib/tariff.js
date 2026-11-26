@@ -19,7 +19,7 @@ export const TARIFF_PLANS = {
 };
 
 export function defaultTariff() {
-  return { plan: 'subsidized', tiers: TARIFF_PLANS.subsidized.map((x) => ({ ...x })), extraFils: 0 };
+  return { plan: 'subsidized', tiers: TARIFF_PLANS.subsidized.map((x) => ({ ...x })), extraFils: 0, effectiveFrom: '' };
 }
 
 const r3 = (v) => Math.round(v * 1000) / 1000;

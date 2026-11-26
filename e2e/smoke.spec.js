@@ -14,22 +14,26 @@ test('add, edit, delete a charge; tabs; language', async ({ page }) => {
   const form = page.getByRole('dialog');
   await form.locator('#f-before').fill('20');
   await form.locator('#f-after').fill('80');
-  await form.locator('#f-odo').fill('18000');
   await form.getByRole('button', { name: 'حفظ الشحنة' }).click();
   await expect(page.getByText('تم حفظ الشحنة ✓')).toBeVisible();
   // 60% × 60.48 = 36.3 kWh
   await expect(page.getByTestId('total-energy')).toHaveText('36.3');
 
-  // تعديل
+  // تعديل: الضغط على الشحنة يفتح التفاصيل، ثم «تعديل» يفتح النموذج
   await page.getByTestId('charge-row').first().click();
+  await page.getByTestId('detail-edit').click();
   await page.getByRole('dialog').locator('#f-after').fill('90');
   await page.getByRole('dialog').getByRole('button', { name: 'حفظ الشحنة' }).click();
   await expect(page.getByTestId('total-energy')).toHaveText('42.3');
 
-  // حذف (يحتاج نقرتين للتأكيد)
+  // حذف من نافذة التفاصيل، ثم تراجع، ثم حذف نهائي
   await page.getByTestId('charge-row').first().click();
-  await page.getByRole('dialog').getByRole('button', { name: 'حذف' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: /حذف|تأكيد الحذف/ }).last().click();
+  await page.getByTestId('detail-delete').click();
+  await expect(page.getByTestId('charge-row')).toHaveCount(0);
+  await page.getByRole('button', { name: 'تراجع' }).click();
+  await expect(page.getByTestId('charge-row')).toHaveCount(1);
+  await page.getByTestId('charge-row').first().click();
+  await page.getByTestId('detail-delete').click();
   await expect(page.getByTestId('charge-row')).toHaveCount(0);
 
   // التبويبات الخمسة
@@ -41,6 +45,7 @@ test('add, edit, delete a charge; tabs; language', async ({ page }) => {
 
   // تبديل اللغة
   await nav.getByRole('button', { name: 'الإعدادات' }).click();
+  await page.getByTestId('set-look').click();
   await page.getByRole('button', { name: 'English' }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');

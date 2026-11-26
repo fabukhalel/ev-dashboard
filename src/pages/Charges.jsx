@@ -1,64 +1,51 @@
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { List, CalendarDays } from 'lucide-react';
 import ChargeList from '../components/ChargeList.jsx';
 import CalendarView from '../components/CalendarView.jsx';
-import { Segmented } from '../components/ui.jsx';
+import PeriodBar from '../components/PeriodBar.jsx';
+import { PageTitle } from '../components/ui.jsx';
 import { useStore, useUi } from '../state/store.jsx';
-import { useFilteredCharges, useMonthKeys } from '../state/derived.js';
-import { monthLabel } from '../lib/format.js';
+import { usePeriod } from '../state/derived.js';
+import { num } from '../lib/format.js';
 
-/** فلتر الشهر والنوع: يظهر داخل الترويسة الثابتة في عرض القائمة */
-export function ChargesFilters() {
-  const { state: { charges }, t, lang } = useStore();
-  const ui = useUi();
-  const monthKeys = useMonthKeys();
-  if (ui.tab !== 'list' || ui.chargesView !== 'list' || charges.length === 0) return null;
-  return (
-    <div className="space-y-2 px-4 pb-3">
-      <div className="relative">
-        <select className="field appearance-none pe-9 font-bold" value={ui.month} onChange={(e) => ui.setMonth(e.target.value)} aria-label={t('filter_month')}>
-          <option value="all">{t('all_months')}</option>
-          {monthKeys.map((k) => <option key={k} value={k}>{monthLabel(k, lang)}</option>)}
-        </select>
-        <ChevronDown size={16} className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-slate-400" />
-      </div>
-      <Segmented
-        value={ui.typeFilter}
-        onChange={ui.setTypeFilter}
-        options={[
-          { value: 'all', label: t('all') },
-          { value: 'home', label: t('type_home_s'), activeClass: 'bg-home/20 text-home' },
-          { value: 'fast', label: t('type_fast_s'), activeClass: 'bg-fast/20 text-fast' },
-        ]}
-      />
-    </div>
-  );
-}
-
+/** الشحنات (C1–C10): نفس نظام الفترات، ملخص الفترة، فلتر النوع، قائمة أو تقويم */
 export default function Charges() {
-  const { state: { charges, settings }, t, actions } = useStore();
+  const { state: { settings, charges }, t, actions } = useStore();
   const ui = useUi();
-  const view = useFilteredCharges();
-  const monthKeys = useMonthKeys();
+  const p = usePeriod();
+  const list = ui.typeFilter === 'all' ? p.sortedDesc : p.sortedDesc.filter((c) => c.type === ui.typeFilter);
+  const energy = list.reduce((s, c) => s + c.energyKwh, 0);
+  const viewBtn = (id, Icon, label) => (
+    <button type="button" aria-pressed={ui.chargesView === id} aria-label={label} onClick={() => ui.setChargesView(id)}
+      className={`grid h-10 w-12 place-items-center rounded-full transition ${ui.chargesView === id ? 'bg-solid text-onsolid' : 'text-slate-400'}`}>
+      <Icon size={19} />
+    </button>
+  );
   return (
     <>
-      <Segmented
-        value={ui.chargesView}
-        onChange={ui.setChargesView}
-        options={[{ value: 'list', label: t('view_list') }, { value: 'calendar', label: t('view_calendar') }]}
-      />
+      <PageTitle title={t('tab_list')}>
+        <div className="flex rounded-full bg-ink-800 p-1" role="group" aria-label={t('view_kind')}>
+          {viewBtn('list', List, t('view_list'))}
+          {viewBtn('calendar', CalendarDays, t('view_calendar'))}
+        </div>
+      </PageTitle>
       {ui.chargesView === 'list' ? (
-        <ChargeList charges={view.charges} segments={view.segments} currency={settings.currency} onEdit={ui.openEdit} onDelete={actions.requestDelete} onAdd={ui.openAdd} />
+        <>
+          <section className="card p-3.5">
+            <PeriodBar period={p.period}>
+              <span data-testid="period-summary">{t('charges_n', { n: list.length })} · <bdi dir="ltr">{num(energy, 1)} kWh</bdi></span>
+            </PeriodBar>
+          </section>
+          <div className="flex gap-2" role="group" aria-label={t('filter_type')}>
+            {[['all', t('all')], ['home', t('type_home_s')], ['fast', t('type_fast_s')]].map(([id, label]) => (
+              <button key={id} type="button" className="chip !px-5" aria-pressed={ui.typeFilter === id} onClick={() => ui.setTypeFilter(id)} data-testid={`filter-${id}`}>{label}</button>
+            ))}
+          </div>
+          <ChargeList charges={list} numbers={p.numbers} settings={settings} onOpen={ui.openDetail} onDelete={actions.deleteCharge} onAdd={ui.openAdd} swipe />
+          {list.length > 0 && <p className="text-center text-xs text-slate-500">{t('swipe_hint')}</p>}
+        </>
       ) : (
-        <CalendarView
-          key={ui.month}
-          charges={charges}
-          segments={view.allSegments}
-          currency={settings.currency}
-          onEdit={ui.openEdit}
-          onDelete={actions.requestDelete}
-          initialMonth={ui.month !== 'all' ? ui.month : monthKeys[0]}
-        />
+        <CalendarView charges={charges} settings={settings} onOpen={ui.openDetail} />
       )}
     </>
   );

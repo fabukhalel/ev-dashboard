@@ -2,7 +2,7 @@
   "appId": "com.evdashboard.app",
   "appName": "EV Smart Dashboard",
   "webDir": "dist",
-  "backgroundColor": "#04060c",
+  "backgroundColor": "#0a0a0b",
   "server": {
     "androidScheme": "https"
   },

@@ -6,6 +6,19 @@ export const MONTHS = {
   en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 };
 
+// أسماء الأشهر بالعربية لعناوين الفترات في التحليل (A7)، وبالإنجليزية في الواجهة الإنجليزية
+export const MONTHS_LONG = {
+  ar: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+  en: MONTHS.en,
+};
+
+/** «نوفمبر 2026» من نص ISO أو YYYY-MM */
+export function monthTitle(s, lang = 'ar', withYear = true) {
+  const [y, m] = s.split('-').map(Number);
+  const name = (MONTHS_LONG[lang] || MONTHS_LONG.ar)[m - 1];
+  return withYear ? `${name} ${y}` : name;
+}
+
 export const WEEKDAYS = {
   ar: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
   en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
