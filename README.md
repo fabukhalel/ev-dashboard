@@ -16,26 +16,32 @@
 2. اضغط أيقونة القلم ✏️ (Edit this file)، عدّل، ثم **Commit changes**.
    لرفع مجموعة ملفات دفعة واحدة: **Add file ▸ Upload files** واسحب الملفات إلى نفس المسارات.
 3. ادخل تبويب **Actions** ← اختر **Build Android APK** من القائمة اليسرى ← **Run workflow** ← **Run workflow**.
-4. انتظر 5–10 دقائق حتى يظهر ✅ أخضر. ادخل على التشغيل ← انزل لقسم **Artifacts** ← نزّل `ev-dashboard-debug-apk` (ملف zip فيه `app-debug.apk`).
-5. فك الضغط وانقل `app-debug.apk` إلى هاتفك وثبّته (فعّل «السماح بالتثبيت من مصادر غير معروفة» للتطبيق الذي تفتح منه الملف).
+4. انتظر 5–10 دقائق حتى يظهر ✅ أخضر. ادخل على التشغيل ← انزل لقسم **Artifacts** ← نزّل `ev-dashboard-apk` (ملف zip فيه `ev-dashboard-<النسخة>-<رقم البناء>.apk`). وعند وضع tag مثل `v2.0.0` يُنشر الملف أيضاً في صفحة **Releases** فتنزّله من الهاتف مباشرة.
+5. فك الضغط وانقل ملف الـ APK إلى هاتفك وثبّته (فعّل «السماح بالتثبيت من مصادر غير معروفة» للتطبيق الذي تفتح منه الملف).
 
 > إن ظهر ❌ أحمر: ادخل على الخطوة الحمراء وانسخ آخر 20 سطراً من السجل. أغلب الأخطاء تكون في `npm ci` أو الاختبارات أو `gradlew`.
 
 ### الطريقة ب: على حاسوبك
 
-المتطلبات: Node 22 (انظر `.nvmrc`) و JDK 17 و Android Studio (أو Android SDK).
+المتطلبات: Node 22 (انظر `.nvmrc`) و JDK 21 و Android Studio (أو Android SDK).
 
 ```bash
 npm ci
 npm run dev            # معاينة في المتصفح على http://localhost:5173 أثناء التعديل
 npm run build          # بناء نسخة الويب إلى dist/
-npx cap add android    # مرة واحدة فقط (ينشئ مجلد android/)
 npm run cap:sync       # بعد كل تعديل: بناء + نسخ إلى مشروع أندرويد
 npm run cap:open       # يفتح Android Studio ← Build ▸ Build Bundle(s)/APK(s) ▸ Build APK(s)
 # أو من الطرفية:
 cd android && ./gradlew assembleDebug
 # الناتج: android/app/build/outputs/apk/debug/app-debug.apk
 ```
+
+### التوقيع الثابت
+- كل APK من GitHub موقّع بنفس المفتاح، فيُثبَّت فوق السابق وتبقى البيانات.
+- المفتاح محفوظ في GitHub Secrets بأربعة أسماء: `KEYSTORE_BASE64` و`KEYSTORE_PASSWORD` و`KEY_ALIAS` و`KEY_PASSWORD`. ملف المفتاح نفسه لا يُرفع إلى المستودع أبداً (ممنوع في `.gitignore`).
+- رقم النسخة الظاهر من `version` في `package.json`، ورقم البناء يزيد تلقائياً مع كل تشغيل.
+- مجلد `android/` محفوظ في المستودع. الأيقونات وشاشة البداية مولّدة من `assets/` بالأمر:
+  `npx @capacitor/assets generate --android --iconBackgroundColor '#070b16' --iconBackgroundColorDark '#070b16' --splashBackgroundColor '#f4f7f2' --splashBackgroundColorDark '#070b16'`
 
 ### ملاحظات مهمة عن ملف APK
 - النسخة `debug` للتجربة والاستخدام الشخصي. لنشر التطبيق في Google Play تحتاج نسخة `release` موقّعة (keystore) وبناء AAB.

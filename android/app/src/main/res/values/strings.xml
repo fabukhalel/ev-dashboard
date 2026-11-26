@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EV Smart Dashboard</string>
+    <string name="title_activity_main">EV Smart Dashboard</string>
+    <string name="package_name">com.evdashboard.app</string>
+    <string name="custom_url_scheme">com.evdashboard.app</string>
+</resources>
