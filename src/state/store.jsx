@@ -11,7 +11,6 @@ import { maybeAutoBackup, listBackups, BACKUP_DIR, KEY_LAST } from '../lib/autoB
 import { haptic } from '../lib/native.js';
 import { collectReadings } from '../lib/odo.js';
 import { chargesToCsv, saveFile, saveBinary } from '../lib/csv.js';
-import { fileToSmallDataUrl } from '../lib/image.js';
 import { todayStr } from '../lib/format.js';
 import { useConfirm } from '../components/ConfirmSheet.jsx';
 
@@ -163,6 +162,11 @@ export function StoreProvider({ boot, children }) {
         ui.closeSheet();
         notify(t('t_odo_saved'));
       },
+      clearChargeOdos: async () => {
+        if (!(await ask(t('odo_old_clear_q'), t('delete')))) return;
+        dispatch({ type: 'charges/clearOdo' });
+        notify(t('t_odo_deleted'));
+      },
       deleteOdo: async (r) => {
         if (!(await ask(t('confirm_del_odo'), t('delete')))) return false;
         dispatch(r.src === 'charge' ? { type: 'charge/odo', id: r.id, km: null } : { type: 'odo/delete', id: r.id });
@@ -252,13 +256,6 @@ export function StoreProvider({ boot, children }) {
         dispatch({ type: 'charges/clear' });
         ui.setPeriodOffset(0);
         notify(t('t_fresh'));
-      },
-      setPhoto: async (file) => {
-        try {
-          changeSettings({ carPhoto: await fileToSmallDataUrl(file) });
-        } catch {
-          notify(t('photo_fail'));
-        }
       },
     };
     // ui.* المستعملة هنا دوال ثابتة (setState) أو لا تعتمد على حالة قديمة

@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Gauge, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Gauge, Plus, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import PeriodChart from '../components/PeriodChart.jsx';
 import { PageTitle, Segmented, NumUnit, SectionTitle, C } from '../components/ui.jsx';
 import { useStore, useUi } from '../state/store.jsx';
 import { useReadings } from '../state/derived.js';
 import { periodStats } from '../lib/analysis.js';
 import { monthsBetween, cyclesBetween, dayOf } from '../lib/cycle.js';
-import { odoAt } from '../lib/odo.js';
 import { sortChrono } from '../lib/calc.js';
 import { monthTitle, formatDate, shortDM, fix, num, todayStr, daysInclusive } from '../lib/format.js';
 
@@ -17,11 +16,22 @@ function periodTitle(p, kind, t, lang) {
 }
 
 /** التحليل (A1–A7): الطاقة افتراضياً، التكلفة، والمسافة والكفاءة عند وجود قراءات عداد */
-// للفترة الحالية: آخر قراءة حتى اليوم (لا نقدّر ما بعد آخر قراءة)
-const lastOdoUpTo = (readings, today) => {
-  const last = readings.length ? readings[readings.length - 1].date : today;
-  return last < today ? last : today;
-};
+
+/** قائمة قراءات عداد قابلة للضغط (تفتح نافذة التعديل والحذف) */
+function OdoRows({ list, onOpen, Chev, t, testid }) {
+  return (
+    <ul className="space-y-1.5" data-testid={testid}>
+      {list.map((r) => (
+        <li key={`${r.src}-${r.id}`}>
+          <button type="button" className="tabular flex w-full items-center justify-between gap-2 rounded-2xl bg-ink-900 px-3 py-2.5 text-start text-sm" onClick={() => onOpen(r)} data-testid="odo-row">
+            <bdi dir="ltr" className="font-bold">{formatDate(r.date)}</bdi>
+            <span className="flex items-center gap-1.5"><b dir="ltr">{num(r.km, 0)} {t('km')}</b><Chev size={16} className="text-slate-500" /></span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default function Analysis() {
   const { state: { charges, settings, bills }, t, lang, actions } = useStore();
@@ -40,7 +50,7 @@ export default function Analysis() {
       const s = periodStats(charges, readings, p);
       const day = dayOf(p, today);
       const days = day ? day.n : daysInclusive(p.start, p.end);
-      return { p, s, days, current: !!day, ...periodTitle(p, kind, t, lang), odoStart: odoAt(readings, p.start), odoEnd: odoAt(readings, day ? lastOdoUpTo(readings, today) : p.end) };
+      return { p, s, days, current: !!day, ...periodTitle(p, kind, t, lang) };
     });
   }, [charges, readings, kind, today, settings.cycleStartDay, bills, t, lang]);
 
@@ -54,7 +64,9 @@ export default function Analysis() {
   const metrics = [{ value: 'energy', label: t('m_energy') }, { value: 'cost', label: t('m_cost') }];
   if (hasOdo) metrics.push({ value: 'distance', label: t('m_distance') }, { value: 'eff', label: t('m_eff') });
   const [allOdo, setAllOdo] = useState(false);
-  const list = [...readings].reverse();
+  const [showOld, setShowOld] = useState(false);
+  const manual = readings.filter((r) => r.src === 'manual').reverse();
+  const fromCharges = readings.filter((r) => r.src === 'charge').reverse();
   const Chev = lang === 'ar' ? ChevronLeft : ChevronRight;
 
   return (
@@ -107,36 +119,30 @@ export default function Analysis() {
           <button className="btn-primary !px-3.5 !py-2 text-sm" onClick={() => ui.openOdo(null)} data-testid="odo-today"><Plus size={16} /> {t('odo_today')}</button>
         </div>
         <p className="text-sm leading-relaxed text-slate-400">{t('odo_hint_new')}</p>
-        {rows.length > 0 && hasOdo && (
-          <ul className="row-divide" data-testid="odo-periods">
-            {[...rows].reverse().slice(0, 6).map(({ p, title, odoStart, odoEnd }) => (
-              <li key={p.start} className="tabular flex items-center justify-between gap-2 py-2.5 text-sm">
-                <span className="font-bold">{title}</span>
-                <span className="text-slate-400" dir="ltr">{odoStart ? `${odoStart.exact ? '' : '≈'}${num(odoStart.km, 0)}` : '—'} → {odoEnd ? `${odoEnd.exact ? '' : '≈'}${num(odoEnd.km, 0)}` : '—'} {t('km')}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        {list.length === 0 ? (
+        {manual.length === 0 ? (
           <p className="rounded-2xl bg-ink-900 px-3 py-3 text-center text-sm text-slate-400">{t('odo_empty')}</p>
         ) : (
           <>
             <p className="text-sm text-slate-500">{t('odo_tap_hint')}</p>
-            <ul className="space-y-1.5" data-testid="odo-list">
-              {(allOdo ? list : list.slice(0, 6)).map((r) => (
-                <li key={`${r.src}-${r.id}`}>
-                  <button type="button" className="tabular flex w-full items-center justify-between gap-2 rounded-2xl bg-ink-900 px-3 py-2.5 text-start text-sm" onClick={() => ui.openOdo(r)} data-testid="odo-row">
-                    <span className="min-w-0">
-                      <bdi dir="ltr" className="block font-bold">{formatDate(r.date)}</bdi>
-                      {r.src === 'charge' && <span className="block text-xs text-slate-500">{t('odo_from_charge')}</span>}
-                    </span>
-                    <span className="flex items-center gap-1.5"><b dir="ltr">{num(r.km, 0)} {t('km')}</b><Chev size={16} className="text-slate-500" /></span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {list.length > 6 && <button type="button" className="btn-ghost w-full !py-2 text-sm" onClick={() => setAllOdo(!allOdo)}>{allOdo ? t('show_less') : t('view_all_n', { n: list.length })}</button>}
+            <OdoRows list={allOdo ? manual : manual.slice(0, 6)} onOpen={ui.openOdo} Chev={Chev} t={t} testid="odo-list" />
+            {manual.length > 6 && <button type="button" className="btn-ghost w-full !py-2 text-sm" onClick={() => setAllOdo(!allOdo)}>{allOdo ? t('show_less') : t('view_all_n', { n: manual.length })}</button>}
           </>
+        )}
+        {/* القراءات القديمة المحفوظة مع الشحنات: مخفية افتراضياً، تُعرض أو تُحذف كلها */}
+        {fromCharges.length > 0 && (
+          <div className="space-y-2 border-t border-white/[0.07] pt-3">
+            <button type="button" className="flex w-full items-center justify-between text-sm font-bold text-slate-400" onClick={() => setShowOld(!showOld)} data-testid="odo-old-toggle">
+              {t('odo_old_title', { n: fromCharges.length })}
+              <ChevronDown size={16} className={showOld ? 'rotate-180' : ''} />
+            </button>
+            {showOld && (
+              <>
+                <p className="text-sm leading-relaxed text-slate-500">{t('odo_old_hint')}</p>
+                <OdoRows list={fromCharges} onOpen={ui.openOdo} Chev={Chev} t={t} testid="odo-old-list" />
+                <button type="button" className="btn-danger w-full !py-2 text-sm" onClick={actions.clearChargeOdos} data-testid="odo-old-clear">{t('odo_old_clear')}</button>
+              </>
+            )}
+          </div>
         )}
       </section>
     </>

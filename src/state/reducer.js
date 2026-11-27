@@ -38,6 +38,8 @@ export function reducer(s, a) {
       return { ...s, odos: s.odos.map((x) => (x.id === a.id ? { ...x, ...a.odo, id: x.id } : x)) };
     case 'charge/odo':
       return { ...s, charges: s.charges.map((c) => (c.id === a.id ? { ...c, odometer: a.km } : c)) };
+    case 'charges/clearOdo':
+      return { ...s, charges: s.charges.map((c) => (c.odometer != null ? { ...c, odometer: null } : c)) };
     case 'odo/delete':
       return { ...s, odos: s.odos.filter((x) => x.id !== a.id) };
     case 'settings/change': {
@@ -52,8 +54,8 @@ export function reducer(s, a) {
     }
     case 'settings/reset': {
       // نعيد الإعدادات الافتراضية مع إبقاء المظهر واللغة
-      const { lang, theme, fontPx, palette, homeLayout, recentCount, lastBackupAt } = s.settings;
-      return withTiers({ ...s, settings: { ...defaultSettings(), lang, theme, fontPx, palette, homeLayout, recentCount, lastBackupAt, currency: CURRENCY_BY_LANG[lang] } });
+      const { lang, theme, fontPx, palette, homeLayout, recentCount, chargesSort, lastBackupAt } = s.settings;
+      return withTiers({ ...s, settings: { ...defaultSettings(), lang, theme, fontPx, palette, homeLayout, recentCount, chargesSort, lastBackupAt, currency: CURRENCY_BY_LANG[lang] } });
     }
     case 'charges/adoptOld':
       return { ...s, charges: adoptOld(s.charges, s.settings, s.bills) };

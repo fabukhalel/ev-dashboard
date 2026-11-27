@@ -5,7 +5,6 @@ import {
   Gauge, ShieldCheck, ShieldAlert, SlidersHorizontal, RefreshCw,
 } from 'lucide-react';
 import { PageTitle, Segmented, ListRow, NavArrow, C } from '../components/ui.jsx';
-import CarImage from '../components/CarImage.jsx';
 import DateField from '../components/DateField.jsx';
 import About from './About.jsx';
 import { useStore, useUi } from '../state/store.jsx';
@@ -50,7 +49,6 @@ const Group = ({ title, children }) => (
 function CarPage() {
   const { state: { settings }, t, actions } = useStore();
   const ui = useUi();
-  const photoRef = useRef(null);
   const set = (k) => (e) => actions.changeSettings({ [k]: e.target.value });
   return (
     <>
@@ -66,22 +64,7 @@ function CarPage() {
         <NumField id="s-cap" label={t('capacity_label')} value={settings.capacity} min={MIN_CAPACITY} max={MAX_CAPACITY} suffix="kWh" onCommit={(n) => actions.changeSettings({ capacity: n })} hint={t('capacity_hint')} />
         <div><label className="label" htmlFor="s-cur">{t('currency_label')}</label><input id="s-cur" className="field" maxLength={10} value={settings.currency} onChange={set('currency')} /></div>
       </Group>
-      <Group title={t('car_image_opt')}>
-        <div className="flex items-center gap-3">
-          <CarImage settings={settings} size="md" />
-          <p className="text-sm leading-relaxed text-slate-400">{t('img_hint')}</p>
-        </div>
-        <select id="s-style" className="field" value={settings.carStyle} onChange={set('carStyle')} disabled={!!settings.carPhoto} aria-label={t('car_image')}>
-          {['auto', 'yuan', 'sedan', 'suv', 'hatch', 'pickup'].map((k) => <option key={k} value={k}>{t(k === 'auto' ? 'img_auto' : `style_${k}`)}</option>)}
-        </select>
-        <div className="flex gap-2">
-          <button className="btn-ghost flex-1" onClick={() => photoRef.current?.click()}><Upload size={15} /> {t('upload_photo')}</button>
-          {settings.carPhoto && <button className="btn-danger flex-1" onClick={() => actions.changeSettings({ carPhoto: '' })}><Trash2 size={15} /> {t('remove_photo')}</button>}
-          <input type="color" aria-label={t('col_car')} value={settings.carColor} onChange={set('carColor')} className="h-11 w-14 cursor-pointer rounded-full bg-transparent" />
-        </div>
-        <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) actions.setPhoto(f); e.target.value = ''; }} />
-      </Group>
-      <button className="btn-ghost w-full py-3" onClick={() => ui.openSheet('odo')} data-testid="settings-add-odo"><Gauge size={16} /> {t('odo_add_long')}</button>
+      <button className="btn-ghost w-full py-3" onClick={() => ui.openOdo(null)} data-testid="settings-add-odo"><Gauge size={16} /> {t('odo_add_long')}</button>
     </>
   );
 }

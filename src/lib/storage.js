@@ -50,6 +50,7 @@ export function defaultSettings() {
       { id: 'recent', visible: true },
     ],
     recentCount: 5,
+    chargesSort: 'desc', // ترتيب قائمة الشحنات: الأحدث أولاً أو الأقدم أولاً
     lastBackupAt: 0, // آخر نسخة احتياطية (ms): تصدير يدوي أو تلقائي
   };
 }
@@ -194,6 +195,7 @@ export function sanitizeSettings(s) {
     }
   }
   if (RECENT_COUNTS.includes(s.recentCount)) out.recentCount = s.recentCount;
+  if (s.chargesSort === 'asc' || s.chargesSort === 'desc') out.chargesSort = s.chargesSort;
   const lb = toNum(s.lastBackupAt);
   if (lb != null && lb > 0) out.lastBackupAt = lb;
   for (const k of ['periodStart', 'periodEnd']) if (typeof s[k] === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s[k])) out[k] = s[k];

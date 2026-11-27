@@ -61,11 +61,11 @@ eg: 'مثال: {v}',
     car_name: 'الاسم / الماركة', car_model: 'الموديل',
     capacity_label: 'سعة البطارية الإجمالية (kWh)',
     capacity_hint: 'تُحسب منها الطاقة من نسبة الشحن، وهي الحد الأعلى للطاقة في الشحنة الواحدة. الشحنات القديمة تحتفظ بالسعة وقت تسجيلها.',
-    car_image: 'صورة السيارة', img_auto: 'تلقائي حسب الموديل',
 
-    upload_photo: 'رفع صورة', remove_photo: 'إزالة الصورة',
-    img_hint: 'رسم مولَّد بالكود حسب الموديل (لـ BYD Yuan Plus رسم مفصّل) وليس صورة فوتوغرافية. ارفع صورة سيارتك الحقيقية، أو ضع الملف public/car.jpg في المشروع.',
-    photo_fail: 'تعذر قراءة الصورة',
+
+
+
+
     currency_label: 'رمز العملة',
     fast_price: 'سعر kWh السريع',
     reset_defaults: 'استعادة الإعدادات الافتراضية',
@@ -111,7 +111,7 @@ eg: 'مثال: {v}',
 
     period_bad: 'حدّد تاريخ بداية ونهاية صحيحين (البداية قبل النهاية أو تساويها)، وإلا تُعرض بيانات الشهر الحالي.',
     // الألوان والخط
-    col_car: 'لون السيارة',
+
 
     pal_default: 'الافتراضي', pal_blue: 'أزرق', pal_red: 'أحمر', pal_gold: 'ذهبي', pal_mono: 'رمادي',
     font_tajawal: 'Tajawal', font_cairo: 'Cairo', font_almarai: 'Almarai', font_system: 'خط الجهاز',
@@ -252,7 +252,9 @@ eg: 'مثال: {v}',
     sec_hero: 'البطاقة الرئيسية', sec_stats: 'التكلفة وعدد الشحنات', sec_bill: 'بطاقة الفاتورة', sec_recent: 'آخر الشحنات',
     // الشحنات والتحليل
     view_kind: 'طريقة العرض', filter_type: 'نوع الشحن', an_metric: 'المقياس', daily_avg: 'المعدل اليومي',
-    odo_today: 'قراءة اليوم', odo_edit_title: 'تعديل قراءة العداد', odo_tap_hint: 'اضغط على أي قراءة لتعديلها أو حذفها.', odo_from_charge: 'مسجّلة مع شحنة قديمة', show_less: 'عرض أقل',
+    odo_old_title: 'قراءات قديمة مسجّلة مع الشحنات ({n})', odo_old_hint: 'هذه قراءات من النسخة القديمة كانت تُكتب مع كل شحنة. يمكنك تعديل أي منها أو حذفها كلها. الشحنات نفسها لا تتغيّر.', odo_old_clear: 'حذف كل القراءات القديمة', odo_old_clear_q: 'حذف كل قراءات العداد المسجّلة مع الشحنات القديمة؟ الشحنات نفسها تبقى كما هي.',
+    sort_label: 'ترتيب الشحنات', sort_newest: 'الأحدث أولاً', sort_oldest: 'الأقدم أولاً',
+    odo_today: 'قراءة اليوم', odo_edit_title: 'تعديل قراءة العداد', odo_tap_hint: 'اضغط على أي قراءة لتعديلها أو حذفها.', show_less: 'عرض أقل',
     odo_from_charge_hint: 'هذه القراءة محفوظة مع شحنة قديمة. عند الحفظ تُنقل إلى قائمة القراءات، والشحنة نفسها لا تتغيّر.', odo_hint_new: 'سجّل قراءة العداد مرة في بداية كل شهر أو دورة، ويحسب التطبيق المسافة والاستهلاك لكل فترة.',
     // الفاتورة
     bill_amount_c: 'مبلغ الفاتورة ({c}) اختياري', bill_recorded: 'فاتورة مسجّلة', bill_not_recorded: 'لم تُسجّل فاتورتها',
@@ -263,7 +265,7 @@ eg: 'مثال: {v}',
     set_car: 'السيارة', set_car_sub: 'الاسم والبطارية والصورة', set_power: 'الكهرباء والأسعار', set_power_sub: 'الشرائح ودورة الفاتورة والشحن السريع',
     set_look: 'المظهر', set_look_sub: 'الألوان والوضع الليلي والخط واللغة', set_data: 'البيانات', set_data_sub: 'النسخ الاحتياطي والتصدير والحذف',
     set_about: 'حول التطبيق', set_about_sub: 'الإصدار والمطوّر والخصوصية',
-    car_image_opt: 'صورة السيارة (اختياري)', tariff_from: 'تُطبّق الأسعار من تاريخ',
+    tariff_from: 'تُطبّق الأسعار من تاريخ',
     tariff_from_hint: 'الشحنات قبل هذا التاريخ تحتفظ بأسعارها المسجّلة. اتركه فارغاً لتطبيق الأسعار على كل الشحنات.',
     cycle_settings: 'دورة الفاتورة والشرائح', cycle_day: 'يوم بداية الدورة', cycle_day_hint: 'اليوم الذي تبدأ فيه قراءة عدّاد الكهرباء كل شهر (من 1 إلى 28).',
     tier_days_low: 'أيام الشريحة المنخفضة في أول الدورة', tier_days_high: 'أيام الشريحة المرتفعة في آخر الدورة',
@@ -336,11 +338,11 @@ eg: 'e.g. {v}',
     car_name: 'Name / brand', car_model: 'Model',
     capacity_label: 'Total battery capacity (kWh)',
     capacity_hint: 'Used to turn charge level into energy, and the upper limit for energy in one charge. Older charges keep the capacity they were logged with.',
-    car_image: 'Car image', img_auto: 'Automatic by model',
 
-    upload_photo: 'Upload photo', remove_photo: 'Remove photo',
-    img_hint: 'A code-drawn illustration picked from the model name (BYD Yuan Plus has a detailed one), not a photograph. Upload a real photo of your car, or put the file public/car.jpg in the project.',
-    photo_fail: 'Could not read the image',
+
+
+
+
     currency_label: 'Currency symbol',
     fast_price: 'Fast price / kWh',
     reset_defaults: 'Restore default settings',
@@ -381,7 +383,7 @@ eg: 'e.g. {v}',
     period_from: 'From', period_to: 'To',
 
     period_bad: 'Enter a valid start and end date (start on or before end); otherwise the current month is shown.',
-    col_car: 'Car color',
+
 
     pal_default: 'Default', pal_blue: 'Blue', pal_red: 'Red', pal_gold: 'Gold', pal_mono: 'Gray',
     font_tajawal: 'Tajawal', font_cairo: 'Cairo', font_almarai: 'Almarai', font_system: 'Device font',
@@ -518,7 +520,9 @@ eg: 'e.g. {v}',
     backup_never: 'You have no backup yet. Back up now',
     sec_hero: 'Main card', sec_stats: 'Cost and charge count', sec_bill: 'Bill card', sec_recent: 'Recent charges',
     view_kind: 'View', filter_type: 'Charge type', an_metric: 'Metric', daily_avg: 'Daily average',
-    odo_today: "Today's reading", odo_edit_title: 'Edit odometer reading', odo_tap_hint: 'Tap any reading to edit or delete it.', odo_from_charge: 'Saved with an old charge', show_less: 'Show less',
+    odo_old_title: 'Old readings saved with charges ({n})', odo_old_hint: 'These come from the old version, which saved a reading with every charge. Edit any of them or delete them all. The charges themselves do not change.', odo_old_clear: 'Delete all old readings', odo_old_clear_q: 'Delete all odometer readings saved with old charges? The charges stay as they are.',
+    sort_label: 'Sort charges', sort_newest: 'Newest first', sort_oldest: 'Oldest first',
+    odo_today: "Today's reading", odo_edit_title: 'Edit odometer reading', odo_tap_hint: 'Tap any reading to edit or delete it.', show_less: 'Show less',
     odo_from_charge_hint: 'This reading is stored with an old charge. Saving moves it to the readings list; the charge itself does not change.', odo_hint_new: 'Record the odometer once at the start of each month or cycle, and the app works out distance and consumption per period.',
     bill_amount_c: 'Bill amount ({c}), optional', bill_recorded: 'Bill recorded', bill_not_recorded: 'No bill recorded',
     bill_ev_kwh: 'Home charging energy', bill_estimate: 'Estimate', bill_est_vs_real: 'Estimate vs actual bill',
@@ -527,7 +531,7 @@ eg: 'e.g. {v}',
     set_car: 'Car', set_car_sub: 'Name, battery and photo', set_power: 'Electricity and prices', set_power_sub: 'Tiers, bill cycle and fast charging',
     set_look: 'Appearance', set_look_sub: 'Colours, dark mode, font and language', set_data: 'Data', set_data_sub: 'Backup, export and delete',
     set_about: 'About', set_about_sub: 'Version, developer and privacy',
-    car_image_opt: 'Car photo (optional)', tariff_from: 'Prices apply from',
+    tariff_from: 'Prices apply from',
     tariff_from_hint: 'Charges before this date keep their recorded prices. Leave empty to apply prices to all charges.',
     cycle_settings: 'Bill cycle and tiers', cycle_day: 'Cycle start day', cycle_day_hint: 'The day your electricity meter is read each month (1 to 28).',
     tier_days_low: 'Low-tier days at cycle start', tier_days_high: 'High-tier days at cycle end',
