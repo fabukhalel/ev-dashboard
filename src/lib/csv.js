@@ -2,8 +2,10 @@ import { Capacitor } from '@capacitor/core';
 import { sortChrono } from './calc.js';
 import { formatDate } from './format.js';
 
-const esc = (v) => {
-  const s = v == null ? '' : String(v);
+// نص يبدأ بـ = + - @ (أو Tab/CR) يعامله Excel كمعادلة: نسبقه بعلامة ' ليبقى نصاً. الأرقام لا تتغيّر.
+export const esc = (v) => {
+  let s = v == null ? '' : String(v);
+  if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 

@@ -10,14 +10,20 @@ on:
   push:
     tags: ['v*']
 
+# أقل صلاحية: البناء يقرأ فقط. صلاحية الكتابة (للنشر) في job منفصل لا يشغّل أي كود من الحزم.
 permissions:
-  contents: write   # لنشر الـ APK في GitHub Releases عند وضع tag
+  contents: read
 
 jobs:
   apk:
     runs-on: ubuntu-latest
+    outputs:
+      file: ${{ steps.apk.outputs.file }}
+      version: ${{ steps.apk.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
@@ -86,6 +92,7 @@ jobs:
           "$APKSIGNER" verify --verbose --print-certs "$OUT" > verify.txt
           grep -v "^WARNING" verify.txt
           echo "file=$OUT" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Remove signing key
         if: always()
@@ -96,15 +103,26 @@ jobs:
           name: ev-dashboard-apk
           path: ${{ steps.apk.outputs.file }}
 
-      # النشر: عند tag يبدأ بـ v، أو تشغيل يدوي على main مع publish = true.
-      # إن كان الإصدار موجوداً (أُنشئ من صفحة GitHub مثلاً) يُرفع الملف إليه بدل إنشائه من جديد.
+  # النشر: عند tag يبدأ بـ v، أو تشغيل يدوي على main مع publish = true.
+  # إن كان الإصدار موجوداً (أُنشئ من صفحة GitHub مثلاً) يُرفع الملف إليه بدل إنشائه من جديد.
+  publish:
+    needs: apk
+    if: startsWith(github.ref, 'refs/tags/v') || (inputs.publish && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ev-dashboard-apk
       - name: Publish to GitHub Releases
-        if: startsWith(github.ref, 'refs/tags/v') || (inputs.publish && github.ref == 'refs/heads/main')
         env:
           GH_TOKEN: ${{ github.token }}
-          APK: ${{ steps.apk.outputs.file }}
+          GH_REPO: ${{ github.repository }}
+          APK: ${{ needs.apk.outputs.file }}
+          VERSION: ${{ needs.apk.outputs.version }}
         run: |
-          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then TAG="${GITHUB_REF_NAME}"; else TAG="v$(node -p "require('./package.json').version")"; fi
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then TAG="${GITHUB_REF_NAME}"; else TAG="v${VERSION}"; fi
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" "$APK" --clobber
           else

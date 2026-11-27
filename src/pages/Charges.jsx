@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, CalendarDays } from 'lucide-react';
+import { List, CalendarDays, ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react';
 import ChargeList from '../components/ChargeList.jsx';
 import CalendarView from '../components/CalendarView.jsx';
 import PeriodBar from '../components/PeriodBar.jsx';
@@ -13,7 +13,9 @@ export default function Charges() {
   const { state: { settings, charges }, t, actions } = useStore();
   const ui = useUi();
   const p = usePeriod();
-  const list = ui.typeFilter === 'all' ? p.sortedDesc : p.sortedDesc.filter((c) => c.type === ui.typeFilter);
+  const asc = settings.chargesSort === 'asc';
+  const filtered = ui.typeFilter === 'all' ? p.sortedDesc : p.sortedDesc.filter((c) => c.type === ui.typeFilter);
+  const list = asc ? [...filtered].reverse() : filtered;
   const energy = list.reduce((s, c) => s + c.energyKwh, 0);
   const viewBtn = (id, Icon, label) => (
     <button type="button" aria-pressed={ui.chargesView === id} aria-label={label} onClick={() => ui.setChargesView(id)}
@@ -36,10 +38,14 @@ export default function Charges() {
               <span data-testid="period-summary">{t('charges_n', { n: list.length })} · <bdi dir="ltr">{num(energy, 1)} kWh</bdi></span>
             </PeriodBar>
           </section>
-          <div className="flex gap-2" role="group" aria-label={t('filter_type')}>
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t('filter_type')}>
             {[['all', t('all')], ['home', t('type_home_s')], ['fast', t('type_fast_s')]].map(([id, label]) => (
               <button key={id} type="button" className="chip !px-5" aria-pressed={ui.typeFilter === id} onClick={() => ui.setTypeFilter(id)} data-testid={`filter-${id}`}>{label}</button>
             ))}
+            <button type="button" className="chip ms-auto inline-flex items-center gap-1.5 !px-3.5" onClick={() => actions.changeSettings({ chargesSort: asc ? 'desc' : 'asc' })}
+              aria-label={t('sort_label')} data-testid="sort-toggle">
+              {asc ? <ArrowUpNarrowWide size={16} /> : <ArrowDownWideNarrow size={16} />}{asc ? t('sort_oldest') : t('sort_newest')}
+            </button>
           </div>
           <ChargeList charges={list} numbers={p.numbers} settings={settings} onOpen={ui.openDetail} onDelete={actions.deleteCharge} onAdd={ui.openAdd} swipe />
           {list.length > 0 && <p className="text-center text-xs text-slate-500">{t('swipe_hint')}</p>}

@@ -19,6 +19,12 @@ export function newerThan(a, b) {
   return false;
 }
 
+/** رابط التحديث يُقبل فقط إن كان صفحة إصدار في مستودع التطبيق نفسه، وإلا نستخدم صفحة آخر إصدار */
+export const RELEASES_URL = `https://github.com/${REPO}/releases/latest`;
+export function safeReleaseUrl(url) {
+  return typeof url === 'string' && url.startsWith(`https://github.com/${REPO}/releases/`) && !/[\s"'<>]/.test(url) ? url : RELEASES_URL;
+}
+
 const LIBS = [
   ['React', 'MIT'], ['Vite', 'MIT'], ['Tailwind CSS', 'MIT'], ['Capacitor', 'MIT'], ['Lucide', 'ISC'],
   ['Readex Pro', 'OFL-1.1'], ['IBM Plex Sans / Arabic', 'OFL-1.1'],
@@ -37,7 +43,7 @@ export default function About() {
       if (r.status === 404) { setUpd({ state: 'none' }); return; }
       if (!r.ok) throw new Error(String(r.status));
       const j = await r.json();
-      setUpd(newerThan(j.tag_name, APP_VERSION) ? { state: 'new', tag: j.tag_name, url: j.html_url } : { state: 'latest' });
+      setUpd(newerThan(j.tag_name, APP_VERSION) ? { state: 'new', tag: String(j.tag_name).slice(0, 20), url: safeReleaseUrl(j.html_url) } : { state: 'latest' });
     } catch {
       setUpd({ state: 'error' });
     }

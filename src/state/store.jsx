@@ -4,14 +4,13 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { reducer } from './reducer.js';
 import { makeT } from '../lib/i18n.jsx';
-import { makeBackup, parseBackup } from '../lib/storage.js';
+import { makeBackup, parseBackup, MAX_BACKUP_BYTES } from '../lib/storage.js';
 import { createSaver } from '../lib/persist.js';
 import { onBackground, shareBackupFile } from '../lib/platform.js';
 import { maybeAutoBackup, listBackups, BACKUP_DIR, KEY_LAST } from '../lib/autoBackup.js';
 import { haptic } from '../lib/native.js';
 import { collectReadings } from '../lib/odo.js';
 import { chargesToCsv, saveFile, saveBinary } from '../lib/csv.js';
-import { fileToSmallDataUrl } from '../lib/image.js';
 import { todayStr } from '../lib/format.js';
 import { useConfirm } from '../components/ConfirmSheet.jsx';
 
@@ -163,6 +162,11 @@ export function StoreProvider({ boot, children }) {
         ui.closeSheet();
         notify(t('t_odo_saved'));
       },
+      clearChargeOdos: async () => {
+        if (!(await ask(t('odo_old_clear_q'), t('delete')))) return;
+        dispatch({ type: 'charges/clearOdo' });
+        notify(t('t_odo_deleted'));
+      },
       deleteOdo: async (r) => {
         if (!(await ask(t('confirm_del_odo'), t('delete')))) return false;
         dispatch(r.src === 'charge' ? { type: 'charge/odo', id: r.id, km: null } : { type: 'odo/delete', id: r.id });
@@ -206,9 +210,10 @@ export function StoreProvider({ boot, children }) {
       },
       importBackup: async (file) => {
         try {
+          if (file.size > MAX_BACKUP_BYTES) throw new Error('too_big');
           await applyBackupText(await file.text());
         } catch (e) {
-          notify(e instanceof SyntaxError ? t('t_bad_file') : e.message === 'invalid_backup' ? t('t_bad_backup') : t('t_bad_file'));
+          notify(e instanceof SyntaxError ? t('t_bad_file') : e.message === 'invalid_backup' ? t('t_bad_backup') : e.message === 'too_big' ? t('t_too_big') : t('t_bad_file'));
         }
       },
       autoBackupNow: async () => {
@@ -252,13 +257,6 @@ export function StoreProvider({ boot, children }) {
         dispatch({ type: 'charges/clear' });
         ui.setPeriodOffset(0);
         notify(t('t_fresh'));
-      },
-      setPhoto: async (file) => {
-        try {
-          changeSettings({ carPhoto: await fileToSmallDataUrl(file) });
-        } catch {
-          notify(t('photo_fail'));
-        }
       },
     };
     // ui.* المستعملة هنا دوال ثابتة (setState) أو لا تعتمد على حالة قديمة

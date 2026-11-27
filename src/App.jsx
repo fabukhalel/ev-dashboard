@@ -37,8 +37,11 @@ export default function App() {
           ? { settings, ...makeDemo(settings, new Date(), (list) => retier(list, settings, [])), bills: [], demo: true }
           : { settings, charges: [], bills: [], odos: [], demo: false };
       }
+      // صورة السيارة لم تعد مستخدمة في التصميم الجديد: تُحذف من التخزين عند أول حفظ
+      const oldPhoto = res.source === 'data' ? initial.settings.carPhoto || '' : null;
+      if (initial.settings.carPhoto) initial = { ...initial, settings: { ...initial.settings, carPhoto: '' } };
       const fs = await getBackupFs();
-      if (alive) setBoot({ initial, backend, fs, source: res.source, photo: res.source === 'data' ? initial.settings.carPhoto || '' : null });
+      if (alive) setBoot({ initial, backend, fs, source: res.source, photo: oldPhoto });
     })();
     return () => { alive = false; };
   }, []);
