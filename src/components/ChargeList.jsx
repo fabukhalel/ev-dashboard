@@ -9,7 +9,7 @@ import { useI18n } from '../lib/i18n.jsx';
 export function chargeSub(c, t, settings) {
   if (isTiered(c) && c.tier != null) return t(`tier_${tierLevel(c.tier, settings.tariff.tiers.length)}`);
   const price = `${fix(c.pricePerKwh, 3)} ${settings.currency}`;
-  return c.type === 'fast' && c.note ? `${price} · ${c.note}` : price;
+  return c.type === 'fast' && c.note ? `${c.note}، ${price}` : price;
 }
 
 /** صف شحنة (C4/H11): التاريخ واسم اليوم ورقمها في الفترة، شريط البطارية، kWh كبير فوق المبلغ */

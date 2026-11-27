@@ -74,7 +74,7 @@ describe('sanitize', () => {
 
   it('migrates settings from before the new design', () => {
     const s = sanitizeSettings({ fontPx: 13, periodMode: 'bill', fontFamily: 'cairo', colors: { accent: '#ffffff' }, homePrice: 0.1 });
-    expect(s.palette).toBe('lime');
+    expect(s.palette).toBe('amman');
     expect(s.fontPx).toBe(15);
     expect(s.periodMode).toBe('cycle');
     expect(s).not.toHaveProperty('fontFamily');

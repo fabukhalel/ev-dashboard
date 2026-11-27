@@ -5,7 +5,7 @@ import { PERIOD_KINDS, CUSTOM_PRESETS, DEFAULT_CYCLE_DAY, migratePeriodMode } fr
 import { DEFAULT_TIER_DAYS } from './tiers.js';
 
 export const HOME_SECTIONS = ['hero', 'stats', 'bill', 'recent'];
-export const PALETTE_IDS = ['lime', 'teal'];
+export const PALETTE_IDS = ['amman', 'lime', 'teal'];
 export const RECENT_COUNTS = [3, 5, 10];
 const THEMES = ['system', 'dark', 'light'];
 const OLD_FONT_PX = { sm: 13, md: 14.5, lg: 16 };
@@ -32,7 +32,7 @@ export function defaultSettings() {
     defaultEfficiency: 16, // kWh/100km حتى تتوفر قراءات عداد كافية
     lang: 'ar',
     theme: 'system',
-    palette: 'lime', // ليموني (افتراضي) | فيروزي
+    palette: 'amman', // ليل عمّان (افتراضي) | ليموني | فيروزي
     fontPx: DEFAULT_FONT_PX,
     carColor: DEFAULT_CAR_COLOR,
     periodMode: 'month', // month | cycle | custom

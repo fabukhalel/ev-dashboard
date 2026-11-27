@@ -20,11 +20,82 @@
 @tailwind utilities;
 
 /*
- * ثيمان معتمدان (S6) × وضعان: ليموني (افتراضي) وفيروزي، ليلي ونهاري.
+ * ثلاثة ثيمات × وضعان (ليلي ونهاري): ليل عمّان (افتراضي)، ليموني، فيروزي.
+ * --tier-* ألوان مربعات الشرائح في شريط الدورة.
  * data-palette و data-theme على <html> يضبطهما التطبيق. كل الألوان متغيرات RGB.
  * البطاقة الرئيسية (hero) داكنة في الوضعين.
  */
+/* ليل عمّان (افتراضي): كحلي ليلي، المنزلي كهرماني والسريع سماوي. النهاري بطاقات بيضاء */
 :root,
+:root[data-palette='amman'][data-theme='dark'] {
+  color-scheme: dark;
+  --ink-950: 13 21 32;
+  --ink-900: 28 40 56;
+  --ink-800: 22 32 45;
+  --ink-700: 34 47 64;
+  --ink-600: 50 66 86;
+  --c-white: 255 255 255;
+  --s100: 243 239 230;
+  --s200: 226 224 216;
+  --s300: 196 202 210;
+  --s400: 160 171 184;
+  --s500: 128 140 155;
+  --s600: 88 100 116;
+  --accent: 242 179 61;
+  --solid: 242 179 61;
+  --onsolid: 40 26 4;
+  --home: 242 179 61;
+  --fast: 111 208 232;
+  --danger: 248 113 113;
+  --card-sh: none;
+  --nav-bg: 20 30 43;
+  --hero-bg: rgb(22 32 45);
+  --hero-fg: 243 239 230;
+  --hero-num: 243 239 230;
+  --hero-seg: 255 255 255;
+  --hero-on: 242 179 61;
+  --hero-onfg: 40 26 4;
+  --hero-sh: none;
+  --tier-low: 44 74 92;
+  --tier-mid: 86 112 143;
+  --tier-high: 172 76 66;
+  --font: 'Readex Pro', system-ui, sans-serif;
+}
+:root[data-palette='amman'][data-theme='light'],
+:root[data-theme='light']:not([data-palette]) {
+  color-scheme: light;
+  --ink-950: 238 242 246;
+  --ink-900: 231 236 242;
+  --ink-800: 255 255 255;
+  --ink-700: 245 247 250;
+  --ink-600: 216 223 231;
+  --c-white: 21 32 43;
+  --s100: 21 32 43;
+  --s200: 36 48 62;
+  --s300: 60 74 90;
+  --s400: 84 98 115;
+  --s500: 106 120 137;
+  --s600: 156 168 182;
+  --accent: 168 98 6;
+  --solid: 21 32 43;
+  --onsolid: 242 179 61;
+  --home: 222 146 22;
+  --fast: 14 130 168;
+  --danger: 185 28 28;
+  --card-sh: 0 10px 28px -18px rgb(21 32 43 / 0.25);
+  --nav-bg: 255 255 255;
+  --hero-bg: rgb(255 255 255);
+  --hero-fg: 21 32 43;
+  --hero-num: 21 32 43;
+  --hero-seg: 21 32 43;
+  --hero-on: 21 32 43;
+  --hero-onfg: 242 179 61;
+  --hero-sh: 0 18px 36px -24px rgb(21 32 43 / 0.35);
+  --tier-low: 200 222 234;
+  --tier-mid: 150 178 206;
+  --tier-high: 232 150 134;
+  --font: 'Readex Pro', system-ui, sans-serif;
+}
 :root[data-palette='lime'][data-theme='dark'] {
   color-scheme: dark;
   --ink-950: 10 10 11;
@@ -54,10 +125,12 @@
   --hero-on: 197 240 74;
   --hero-onfg: 22 26 8;
   --hero-sh: none;
+  --tier-low: 61 90 30;
+  --tier-mid: 107 94 34;
+  --tier-high: 122 51 38;
   --font: 'Readex Pro', system-ui, sans-serif;
 }
-:root[data-palette='lime'][data-theme='light'],
-:root[data-theme='light']:not([data-palette]) {
+:root[data-palette='lime'][data-theme='light'] {
   color-scheme: light;
   --ink-950: 241 242 238;
   --ink-900: 236 237 232;
@@ -79,7 +152,17 @@
   --danger: 185 28 28;
   --card-sh: 0 10px 28px -18px rgb(20 20 20 / 0.28);
   --nav-bg: 255 255 255;
+  --hero-bg: radial-gradient(120% 80% at 100% 0%, rgb(197 240 74 / 0.14), transparent 60%), linear-gradient(165deg, #202320 0%, #151617 60%, #121314 100%);
+  --hero-fg: 255 255 255;
+  --hero-num: 197 240 74;
+  --hero-seg: 255 255 255;
+  --hero-on: 197 240 74;
+  --hero-onfg: 22 26 8;
   --hero-sh: 0 22px 40px -22px rgb(20 20 20 / 0.55);
+  --tier-low: 61 90 30;
+  --tier-mid: 107 94 34;
+  --tier-high: 122 51 38;
+  --font: 'Readex Pro', system-ui, sans-serif;
 }
 :root[data-palette='teal'][data-theme='dark'] {
   color-scheme: dark;
@@ -110,6 +193,9 @@
   --hero-on: 255 255 255;
   --hero-onfg: 14 90 92;
   --hero-sh: none;
+  --tier-low: 20 90 92;
+  --tier-mid: 30 120 118;
+  --tier-high: 150 70 60;
   --font: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif;
 }
 :root[data-palette='teal'][data-theme='light'] {
@@ -141,6 +227,9 @@
   --hero-on: 255 255 255;
   --hero-onfg: 14 90 92;
   --hero-sh: 0 22px 40px -22px rgb(11 67 82 / 0.7);
+  --tier-low: 20 90 92;
+  --tier-mid: 30 120 118;
+  --tier-high: 150 70 60;
   --font: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif;
 }
 

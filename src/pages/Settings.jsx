@@ -141,7 +141,7 @@ function LookPage() {
         </div>
       </Group>
       <Group title={t('s_palette')}>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           {Object.entries(PALETTES).map(([id, p]) => (
             <button key={id} type="button" aria-pressed={settings.palette === id} data-palette-choice={id} onClick={() => actions.changeSettings({ palette: id })}
               className={`rounded-2xl p-3 text-start ring-2 transition ${settings.palette === id ? 'ring-accent' : 'ring-transparent'} bg-ink-900`}>

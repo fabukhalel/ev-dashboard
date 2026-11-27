@@ -1,7 +1,7 @@
 // بيانات محسوبة من الحالة (لا تُحفظ): القراءات، الفترة المعروضة وملخصها والمقارنة بالسابقة، الدورة الحالية وشريحة اليوم.
 import { useMemo } from 'react';
 import { useStore, useUi } from './store.jsx';
-import { byMonth, computeSegments, sortChrono } from '../lib/calc.js';
+import { computeSegments, sortChrono } from '../lib/calc.js';
 import { resolvePeriod, shiftPeriod, cycleOf, dayOf, inPeriod, addDays } from '../lib/cycle.js';
 import { collectReadings } from '../lib/odo.js';
 import { periodStats } from '../lib/analysis.js';
@@ -74,13 +74,6 @@ export function usePeriod() {
   }, [charges, readings, period, today, ctx, periodOffset]);
 }
 
-/** آخر 3 أشهر (للأعمدة الرفيعة في البطاقة الرئيسية) */
-export function useLastMonths(n = 3) {
-  const { charges } = useStore().state;
-  return useMemo(() => byMonth(charges, []).slice(-n), [charges, n]);
-}
-
-/** الدورة الحالية: «اليوم N من M» وشريحة اليوم وأثر السيارة التقديري على فاتورتها */
 export function useCurrentCycle() {
   const { settings, charges, bills } = useStore().state;
   const today = todayStr();
