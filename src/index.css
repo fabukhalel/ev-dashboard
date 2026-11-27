@@ -20,7 +20,7 @@
 @tailwind utilities;
 
 /*
- * ثلاثة ثيمات × وضعان (ليلي ونهاري): ليل عمّان (افتراضي)، ليموني، فيروزي.
+ * ثيمان × وضعان (ليلي ونهاري): ليل عمّان (افتراضي) وفيروزي.
  * --tier-* ألوان مربعات الشرائح في شريط الدورة.
  * data-palette و data-theme على <html> يضبطهما التطبيق. كل الألوان متغيرات RGB.
  * البطاقة الرئيسية (hero) داكنة في الوضعين.
@@ -94,74 +94,6 @@
   --tier-low: 200 222 234;
   --tier-mid: 150 178 206;
   --tier-high: 232 150 134;
-  --font: 'Readex Pro', system-ui, sans-serif;
-}
-:root[data-palette='lime'][data-theme='dark'] {
-  color-scheme: dark;
-  --ink-950: 10 10 11;
-  --ink-900: 30 31 34;
-  --ink-800: 24 25 27;
-  --ink-700: 36 37 40;
-  --ink-600: 52 54 58;
-  --c-white: 255 255 255;
-  --s100: 246 246 244;
-  --s200: 228 229 226;
-  --s300: 200 202 198;
-  --s400: 166 169 166;
-  --s500: 136 139 137;
-  --s600: 96 99 98;
-  --accent: 197 240 74;
-  --solid: 197 240 74;
-  --onsolid: 22 26 8;
-  --home: 197 240 74;
-  --fast: 96 165 250;
-  --danger: 248 113 113;
-  --card-sh: none;
-  --nav-bg: 28 29 31;
-  --hero-bg: radial-gradient(120% 80% at 100% 0%, rgb(197 240 74 / 0.14), transparent 60%), linear-gradient(165deg, #202320 0%, #151617 60%, #121314 100%);
-  --hero-fg: 255 255 255;
-  --hero-num: 197 240 74;
-  --hero-seg: 255 255 255;
-  --hero-on: 197 240 74;
-  --hero-onfg: 22 26 8;
-  --hero-sh: none;
-  --tier-low: 61 90 30;
-  --tier-mid: 107 94 34;
-  --tier-high: 122 51 38;
-  --font: 'Readex Pro', system-ui, sans-serif;
-}
-:root[data-palette='lime'][data-theme='light'] {
-  color-scheme: light;
-  --ink-950: 241 242 238;
-  --ink-900: 236 237 232;
-  --ink-800: 255 255 255;
-  --ink-700: 246 247 243;
-  --ink-600: 222 224 218;
-  --c-white: 20 20 20;
-  --s100: 20 20 20;
-  --s200: 38 39 40;
-  --s300: 64 66 68;
-  --s400: 88 91 94;
-  --s500: 110 113 117;
-  --s600: 160 163 166;
-  --accent: 77 124 15;
-  --solid: 20 20 20;
-  --onsolid: 197 240 74;
-  --home: 85 140 22;
-  --fast: 29 78 216;
-  --danger: 185 28 28;
-  --card-sh: 0 10px 28px -18px rgb(20 20 20 / 0.28);
-  --nav-bg: 255 255 255;
-  --hero-bg: radial-gradient(120% 80% at 100% 0%, rgb(197 240 74 / 0.14), transparent 60%), linear-gradient(165deg, #202320 0%, #151617 60%, #121314 100%);
-  --hero-fg: 255 255 255;
-  --hero-num: 197 240 74;
-  --hero-seg: 255 255 255;
-  --hero-on: 197 240 74;
-  --hero-onfg: 22 26 8;
-  --hero-sh: 0 22px 40px -22px rgb(20 20 20 / 0.55);
-  --tier-low: 61 90 30;
-  --tier-mid: 107 94 34;
-  --tier-high: 122 51 38;
   --font: 'Readex Pro', system-ui, sans-serif;
 }
 :root[data-palette='teal'][data-theme='dark'] {

@@ -5,7 +5,9 @@ import { PERIOD_KINDS, CUSTOM_PRESETS, DEFAULT_CYCLE_DAY, migratePeriodMode } fr
 import { DEFAULT_TIER_DAYS } from './tiers.js';
 
 export const HOME_SECTIONS = ['hero', 'stats', 'bill', 'recent'];
-export const PALETTE_IDS = ['amman', 'lime', 'teal'];
+export const PALETTE_IDS = ['amman', 'teal'];
+// ثيمات أُزيلت: من كان عليها ينتقل إلى ليل عمّان دون اعتباره إعدادات قديمة
+const RETIRED_PALETTES = ['lime'];
 export const RECENT_COUNTS = [3, 5, 10];
 const THEMES = ['system', 'dark', 'light'];
 const OLD_FONT_PX = { sm: 13, md: 14.5, lg: 16 };
@@ -32,7 +34,7 @@ export function defaultSettings() {
     defaultEfficiency: 16, // kWh/100km حتى تتوفر قراءات عداد كافية
     lang: 'ar',
     theme: 'system',
-    palette: 'amman', // ليل عمّان (افتراضي) | ليموني | فيروزي
+    palette: 'amman', // ليل عمّان (افتراضي) | فيروزي
     fontPx: DEFAULT_FONT_PX,
     carColor: DEFAULT_CAR_COLOR,
     periodMode: 'month', // month | cycle | custom
@@ -178,8 +180,8 @@ export function sanitizeSettings(s) {
   if (s.lang === 'ar' || s.lang === 'en') out.lang = s.lang;
   if (THEMES.includes(s.theme)) out.theme = s.theme;
   // إعدادات ما قبل التصميم الجديد (بلا palette): الحجم الافتراضي القديم 13 يصبح 15
-  const legacy = !PALETTE_IDS.includes(s.palette);
-  if (!legacy) out.palette = s.palette;
+  const legacy = !PALETTE_IDS.includes(s.palette) && !RETIRED_PALETTES.includes(s.palette);
+  if (PALETTE_IDS.includes(s.palette)) out.palette = s.palette;
   let px = toNum(s.fontPx) ?? OLD_FONT_PX[s.fontSize];
   if (legacy && (px == null || px <= 13)) px = DEFAULT_FONT_PX;
   if (px != null && px >= MIN_FONT_PX && px <= MAX_FONT_PX) out.fontPx = px;

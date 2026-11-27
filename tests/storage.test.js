@@ -85,6 +85,8 @@ describe('sanitize', () => {
     // من اختار حجماً أكبر يبقى عليه
     expect(sanitizeSettings({ fontPx: 17 }).fontPx).toBe(17);
     expect(sanitizeSettings({ palette: 'lime', fontPx: 12 }).fontPx).toBe(12);
+    expect(sanitizeSettings({ palette: 'lime', fontPx: 12 }).palette).toBe('amman'); // الليموني أُزيل
+    expect(sanitizeSettings({ palette: 'teal' }).palette).toBe('teal');
     expect(sanitizeSettings({ palette: 'lime', fontPx: 11 }).fontPx).toBe(15);
   });
 

@@ -64,6 +64,16 @@ describe('loadPersisted', () => {
     expect(be.map.get(copies[0])).toBe('{broken');
   });
 
+  it('unreadable new data is never replaced by the old v1 copy', async () => {
+    const newer = JSON.stringify({ ...v1, schemaVersion: 99 });
+    const be = memory({ [KEY_DATA]: newer });
+    const r = await loadPersisted(be, memory({ [KEY_V1]: JSON.stringify(v1) }));
+    expect(r.source).toBe('corrupt');
+    expect(be.map.get(KEY_DATA)).toBe(newer);
+    const copies = [...be.map.keys()].filter((k) => k.startsWith(`${KEY_DATA}:corrupt-`));
+    expect(be.map.get(copies[0])).toBe(newer);
+  });
+
   it('works with the localStorage backend', async () => {
     const m = new Map();
     const ls = { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, v), removeItem: (k) => m.delete(k) };

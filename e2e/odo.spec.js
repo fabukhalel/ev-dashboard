@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 const data = {
   schemaVersion: 2,
-  settings: { lang: 'ar', capacity: 60.48, palette: 'lime' },
+  settings: { lang: 'ar', capacity: 60.48, palette: 'amman' },
   charges: [{ id: 'c1', date: '2026-11-03', time: '21:00', socBefore: 20, socAfter: 70, energyKwh: 30.24, pricePerKwh: 0.1, totalCost: 3.024, type: 'home', odometer: 18000, createdAt: 1 }],
   bills: [], odos: [{ id: 'o1', date: '2026-11-10', km: 18400 }], demo: false,
 };
