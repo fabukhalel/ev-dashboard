@@ -4,7 +4,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { reducer } from './reducer.js';
 import { makeT } from '../lib/i18n.jsx';
-import { makeBackup, parseBackup } from '../lib/storage.js';
+import { makeBackup, parseBackup, MAX_BACKUP_BYTES } from '../lib/storage.js';
 import { createSaver } from '../lib/persist.js';
 import { onBackground, shareBackupFile } from '../lib/platform.js';
 import { maybeAutoBackup, listBackups, BACKUP_DIR, KEY_LAST } from '../lib/autoBackup.js';
@@ -210,9 +210,10 @@ export function StoreProvider({ boot, children }) {
       },
       importBackup: async (file) => {
         try {
+          if (file.size > MAX_BACKUP_BYTES) throw new Error('too_big');
           await applyBackupText(await file.text());
         } catch (e) {
-          notify(e instanceof SyntaxError ? t('t_bad_file') : e.message === 'invalid_backup' ? t('t_bad_backup') : t('t_bad_file'));
+          notify(e instanceof SyntaxError ? t('t_bad_file') : e.message === 'invalid_backup' ? t('t_bad_backup') : e.message === 'too_big' ? t('t_too_big') : t('t_bad_file'));
         }
       },
       autoBackupNow: async () => {

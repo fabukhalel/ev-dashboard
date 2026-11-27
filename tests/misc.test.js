@@ -43,3 +43,32 @@ describe('i18n', () => {
     expect(makeT('ar')('__missing__')).toBe('__missing__');
   });
 });
+
+// أمان: تصدير CSV لا يكتب معادلات قابلة للتنفيذ، والتحديث لا يفتح إلا صفحات المستودع، والنسخة الضخمة تُرفض
+describe('security fixes', () => {
+  it('CSV cells that start like a formula are prefixed with a quote; numbers stay numbers', async () => {
+    const { esc } = await import('../src/lib/csv.js');
+    expect(esc('=HYPERLINK("http://x","y")')).toBe(`"'=HYPERLINK(""http://x"",""y"")"`);
+    expect(esc('+1')).toBe("'+1");
+    expect(esc('-2+3')).toBe("'-2+3");
+    expect(esc('@SUM(A1)')).toBe("'@SUM(A1)");
+    expect(esc('محطة المدينة')).toBe('محطة المدينة');
+    expect(esc(-5)).toBe('-5');
+    expect(esc(3.2)).toBe('3.2');
+  });
+
+  it('update link only accepts this repository release pages', async () => {
+    const { safeReleaseUrl, RELEASES_URL } = await import('../src/pages/About.jsx');
+    expect(safeReleaseUrl('https://github.com/fabukhalel/ev-dashboard/releases/tag/v2.1.0')).toBe('https://github.com/fabukhalel/ev-dashboard/releases/tag/v2.1.0');
+    expect(safeReleaseUrl('javascript:alert(1)')).toBe(RELEASES_URL);
+    expect(safeReleaseUrl('https://evil.example/releases/')).toBe(RELEASES_URL);
+    expect(safeReleaseUrl('https://github.com/fabukhalel/ev-dashboard.evil.example/releases/x')).toBe(RELEASES_URL);
+    expect(safeReleaseUrl(undefined)).toBe(RELEASES_URL);
+  });
+
+  it('a backup bigger than the limit is rejected before parsing', async () => {
+    const { parseBackup, MAX_BACKUP_BYTES } = await import('../src/lib/storage.js');
+    expect(() => parseBackup(' '.repeat(MAX_BACKUP_BYTES + 1))).toThrow('too_big');
+    expect(parseBackup(JSON.stringify({ app: 'ev-dashboard', charges: [] })).charges).toEqual([]);
+  });
+});

@@ -9,6 +9,8 @@ export const PALETTE_IDS = ['lime', 'teal'];
 export const RECENT_COUNTS = [3, 5, 10];
 const THEMES = ['system', 'dark', 'light'];
 const OLD_FONT_PX = { sm: 13, md: 14.5, lg: 16 };
+// أكبر نسخة احتياطية تُقبل (سجل سنوات من الشحنات أقل من 1 ميجا بكثير)
+export const MAX_BACKUP_BYTES = 20 * 1024 * 1024;
 export const MIN_FONT_PX = 12;
 export const DEFAULT_FONT_PX = 15;
 export const MAX_FONT_PX = 19;
@@ -220,6 +222,7 @@ export function makeBackup(state) {
 
 /** يقرأ نسخة احتياطية ويُرجع {settings, charges} أو يرمي Error('invalid_backup') */
 export function parseBackup(text) {
+  if (typeof text === 'string' && text.length > MAX_BACKUP_BYTES) throw new Error('too_big');
   const p = JSON.parse(text);
   if (!p || p.app !== 'ev-dashboard' || !Array.isArray(p.charges)) {
     throw new Error('invalid_backup');

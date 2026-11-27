@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- أقل صلاحية: التطبيق يشارك الملفات (CSV وPDF والنسخ الاحتياطية) من مجلد Cache فقط -->
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="my_images" path="." />
     <cache-path name="my_cache_images" path="." />
 </paths>
