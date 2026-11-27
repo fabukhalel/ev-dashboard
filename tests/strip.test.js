@@ -25,6 +25,13 @@ describe('cycle strip', () => {
     expect(tierRuns(days).map((r) => [r.level, r.n])).toEqual([['high', 5], ['low', 10], ['mid', 13], ['high', 2]]);
   });
 
+  it('keeps a manual tier for the rest of the cycle (tiers never go down)', () => {
+    const manual = { id: 'm', date: '2026-11-08', type: 'home', tierSource: 'manual', tier: 2, energyKwh: 10 };
+    const days = stripDays(cycle, [manual], settings);
+    expect(days[1].level).toBe('low');
+    expect(days.slice(2).every((d) => d.level === 'high')).toBe(true);
+  });
+
   it('is hidden for long or open periods', () => {
     expect(stripDays(null, [], settings)).toBeNull();
     expect(stripDays({ start: '2026-01-01', end: '2026-12-31' }, [], settings)).toBeNull();

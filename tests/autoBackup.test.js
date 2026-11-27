@@ -54,9 +54,20 @@ describe('autoBackup', () => {
     await maybeAutoBackup(state, { fs, store, now: day('2026-10-07'), force: true });
     const names = await listBackups(fs);
     expect(names).toHaveLength(5);
-    expect(names[0]).toBe('ev-auto-2026-10-07.json');
-    expect(names).toContain('ev-auto-2026-10-07-2.json');
+    expect(names[0]).toBe('ev-auto-2026-10-07-2.json');
+    expect(names[1]).toBe('ev-auto-2026-10-07.json');
     expect(backupDate(names[1])).toBe('2026-10-07');
+  });
+
+  it('never deletes the backup it just wrote, even after many on one day', async () => {
+    const fs = memFs();
+    const store = memStore();
+    let last;
+    for (let i = 0; i < 12; i++) last = (await maybeAutoBackup(state, { fs, store, now: day('2026-10-07'), force: true })).written;
+    const names = await listBackups(fs);
+    expect(last).toBe('ev-auto-2026-10-07-12.json');
+    expect(names[0]).toBe(last);
+    expect(names).toEqual(['ev-auto-2026-10-07-12.json', 'ev-auto-2026-10-07-11.json', 'ev-auto-2026-10-07-10.json', 'ev-auto-2026-10-07-9.json', 'ev-auto-2026-10-07-8.json']);
   });
 
   it('skips demo data and empty logs', async () => {

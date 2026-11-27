@@ -7,7 +7,8 @@ import CycleStrip, { MAX_STRIP_DAYS } from '../components/CycleStrip.jsx';
 import { Empty, NumUnit, Delta, SectionTitle, C } from '../components/ui.jsx';
 import { useStore, useUi } from '../state/store.jsx';
 import { usePeriod, useCurrentCycle, useBackupStatus } from '../state/derived.js';
-import { tierLevel } from '../lib/tiers.js';
+import { tierLevel, tierOn } from '../lib/tiers.js';
+import { addDays } from '../lib/cycle.js';
 import { num, fix, todayStr, daysInclusive } from '../lib/format.js';
 
 /** الترويسة في الرئيسية فقط (V7): الشعار والتحية والسيارة. شريحة اليوم انتقلت إلى بطاقة الطاقة */
@@ -27,39 +28,42 @@ export function HomeHeader() {
   );
 }
 
-/** شريحة اليوم وكم يوم باقي للمرتفعة (أو لنهاية الدورة إن كنا فيها) */
+/** شريحة اليوم وكم يوم باقي للمرتفعة (أو لنهاية الدورة إن كنا فيها أو لن نصلها) */
 function TierNow() {
-  const { state: { settings }, t } = useStore();
+  const { state: { settings, charges, bills }, t } = useStore();
   const cyc = useCurrentCycle();
   if (!cyc.day) return null;
   const level = tierLevel(cyc.tier, cyc.nTiers);
-  const len = cyc.day.m;
-  const highStart = len - (settings.tierDays?.high ?? 7) + 1;
-  let hint;
-  if (level !== 'high' && cyc.day.n < highStart) {
-    const d = highStart - cyc.day.n;
-    hint = d === 1 ? t('high_in_one') : t('high_in', { d });
-  } else {
-    const d = len - cyc.day.n;
-    hint = d === 0 ? t('cycle_ends_today') : t('cycle_ends_in', { d });
+  const today = todayStr();
+  let toHigh = null;
+  if (level !== 'high') {
+    for (let k = 1; k <= cyc.day.m - cyc.day.n; k++) {
+      if (tierLevel(tierOn(addDays(today, k), charges, settings, bills), cyc.nTiers) === 'high') { toHigh = k; break; }
+    }
   }
+  const left = cyc.day.m - cyc.day.n;
+  const hint = toHigh != null
+    ? (toHigh === 1 ? t('high_in_one') : t('high_in', { d: toHigh }))
+    : left === 0 ? t('cycle_ends_today') : left === 1 ? t('cycle_ends_tomorrow') : t('cycle_ends_in', { d: left });
   return (
-    <div className="min-w-0 text-start" data-testid="today-tier">
+    <div className="min-w-0 text-end" data-testid="today-tier">
       <div className="text-xs hero-soft">{t('day_n_of_m', { n: cyc.day.n, m: cyc.day.m })}</div>
       <div className="mt-0.5 text-base font-bold leading-snug">{t(`tier_${level}_full`)}</div>
-      <div className="text-xs hero-soft">{hint}</div>
+      <div className="text-xs hero-soft" data-testid="tier-hint">{hint}</div>
     </div>
   );
 }
 
 function Hero() {
-  const { state: { settings, bills }, t } = useStore();
+  const { state: { settings, bills, charges }, t } = useStore();
   const p = usePeriod();
   const { stat } = p;
   const today = todayStr();
   const total = stat.homeEnergy + stat.fastEnergy;
   const homePct = total > 0 ? (stat.homeEnergy / total) * 100 : 0;
-  const long = !p.range || daysInclusive(p.range.start, p.range.end) > MAX_STRIP_DAYS;
+  // «كل الفترة» تمتد حتى اليوم في الشريط (لا تقف عند آخر شحنة)
+  const range = p.period.all && p.range ? { start: p.range.start, end: p.range.end > today ? p.range.end : today } : p.range;
+  const long = !range || daysInclusive(range.start, range.end) > MAX_STRIP_DAYS;
   const sub = p.last ? (p.last.daysAgo === 0 ? t('last_today', { p: num(p.last.after, 0) }) : p.last.daysAgo === 1 ? t('last_ago_one', { p: num(p.last.after, 0) }) : t('last_ago', { d: p.last.daysAgo, p: num(p.last.after, 0) })) : null;
   const kindWord = t(p.period.kind === 'cycle' ? 'vs_prev_cycle' : p.period.kind === 'month' ? 'vs_prev_month' : 'vs_prev_period');
   return (
@@ -73,7 +77,7 @@ function Hero() {
         </div>
         {p.isCurrent && <TierNow />}
       </div>
-      <CycleStrip range={p.range} charges={p.list} settings={settings} bills={bills} today={today} t={t} />
+      <CycleStrip range={range} charges={p.list} all={charges} settings={settings} bills={bills} today={today} t={t} />
       {long && total > 0 && (
         <div className="mt-4 flex h-2 gap-1 overflow-hidden" dir="ltr">
           {stat.fastEnergy > 0 && <span className="rounded-full" style={{ width: `${100 - homePct}%`, background: C.fast }} />}

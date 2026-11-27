@@ -47,7 +47,9 @@ export function usePeriod() {
     let prevStat = null;
     if (!period.all) {
       const prev = shiftPeriod(period, -1, ctx);
-      const win = day ? { start: prev.start, end: addDays(prev.start, day.n - 1) } : prev;
+      const cut = day ? addDays(prev.start, day.n - 1) : null;
+      // لا نتجاوز نهاية الفترة السابقة (مثلاً 31 آذار مقابل شباط)
+      const win = cut ? { start: prev.start, end: cut < prev.end ? cut : prev.end } : prev;
       prevStat = periodStats(charges, [], win);
     }
     const forecast = day && day.n < day.m && stat.energy > 0 ? (stat.energy / day.n) * day.m : null;

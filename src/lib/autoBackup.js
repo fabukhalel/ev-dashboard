@@ -20,7 +20,11 @@ export function isDue(lastAt, now = Date.now(), days = EVERY_DAYS) {
 
 /** أسماء النسخ التلقائية مرتبة من الأحدث للأقدم */
 export function sortBackups(names) {
-  return names.filter((n) => NAME.test(n)).sort().reverse();
+  const key = (n) => { const m = NAME.exec(n); return [m[1], Number(m[2] || 1)]; };
+  return names.filter((n) => NAME.test(n)).sort((a, b) => {
+    const [da, ia] = key(a), [db, ib] = key(b);
+    return da === db ? ib - ia : da < db ? 1 : -1;
+  });
 }
 
 /**
@@ -32,8 +36,10 @@ export async function maybeAutoBackup(state, { fs, store, now = new Date(), forc
   if (!force && !isDue(last || NaN, now.getTime())) return { written: null };
   if (!state || !Array.isArray(state.charges) || state.demo || state.charges.length === 0) return { written: null };
   const existing = sortBackups(await fs.list(BACKUP_DIR));
-  let name = `ev-auto-${isoDay(now)}.json`;
-  for (let i = 2; existing.includes(name); i++) name = `ev-auto-${isoDay(now)}-${i}.json`;
+  // اسم جديد دائماً أعلى من أي نسخة لنفس اليوم (لا نعيد استخدام رقم محذوف)
+  const sameDay = existing.filter((n) => backupDate(n) === isoDay(now)).map((n) => Number(NAME.exec(n)[2] || 1));
+  const next = sameDay.length ? Math.max(...sameDay) + 1 : 1;
+  const name = next === 1 ? `ev-auto-${isoDay(now)}.json` : `ev-auto-${isoDay(now)}-${next}.json`;
   await fs.write(`${BACKUP_DIR}/${name}`, makeBackup(state));
   await store.set(KEY_LAST, String(now.getTime()));
   const all = sortBackups([...existing, name]);

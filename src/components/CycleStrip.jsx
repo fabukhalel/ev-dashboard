@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { addDays, cycleOf } from '../lib/cycle.js';
-import { autoTier, tierLevel } from '../lib/tiers.js';
+import { addDays } from '../lib/cycle.js';
+import { tierOn, tierLevel } from '../lib/tiers.js';
 import { daysInclusive } from '../lib/format.js';
 import { num } from '../lib/format.js';
 
@@ -10,8 +10,11 @@ export const MAX_STRIP_DAYS = 62;
 
 const TIER_BG = { low: 'rgb(var(--tier-low))', mid: 'rgb(var(--tier-mid))', high: 'rgb(var(--tier-high))' };
 
-/** أيام الشريط مع شحنات كل يوم وشريحته. يرجع null إن كانت الفترة طويلة أو بلا نطاق */
-export function stripDays(range, charges, settings, bills = []) {
+/**
+ * أيام الشريط مع شحنات كل يوم وشريحته. يرجع null إن كانت الفترة طويلة أو بلا نطاق.
+ * charges: شحنات الفترة (للأعمدة)، all: كل الشحنات (لقاعدة عدم نزول الشريحة بعد شحنة يدوية)
+ */
+export function stripDays(range, charges, settings, bills = [], all = charges) {
   if (!range || !range.start || !range.end) return null;
   const n = daysInclusive(range.start, range.end);
   if (!(n > 0) || n > MAX_STRIP_DAYS) return null;
@@ -24,8 +27,7 @@ export function stripDays(range, charges, settings, bills = []) {
   const days = [];
   for (let i = 0; i < n; i++) {
     const date = addDays(range.start, i);
-    const cyc = cycleOf(date, settings.cycleStartDay, bills);
-    const level = tierLevel(autoTier(date, cyc, settings.tierDays, nTiers), nTiers);
+    const level = tierLevel(tierOn(date, all, settings, bills), nTiers);
     days.push({ date, level, home: byDate[date]?.home || 0, fast: byDate[date]?.fast || 0 });
   }
   return days;
@@ -42,8 +44,8 @@ export function tierRuns(days) {
   return runs;
 }
 
-export default function CycleStrip({ range, charges, settings, bills, today, t }) {
-  const days = useMemo(() => stripDays(range, charges, settings, bills), [range, charges, settings, bills]);
+export default function CycleStrip({ range, charges, all, settings, bills, today, t }) {
+  const days = useMemo(() => stripDays(range, charges, settings, bills, all), [range, charges, settings, bills, all]);
   if (!days) return null;
   const max = Math.max(1, ...days.map((d) => d.home + d.fast));
   const runs = tierRuns(days);
