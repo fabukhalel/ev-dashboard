@@ -1,19 +1,19 @@
-// المظهر: ثيمان معتمدان (ليموني افتراضي، فيروزي) × ليلي/نهاري، وحجم الخط فقط (S6).
+// المظهر: ثيمان (ليل عمّان افتراضي، فيروزي) × ليلي/نهاري، وحجم الخط فقط (S6).
 // الألوان نفسها متغيرات CSS في index.css؛ هنا نضبط data-palette والخط والحجم على <html>.
 
 export const PALETTES = {
-  lime: { font: "'Readex Pro', system-ui, sans-serif", bar: { dark: '#0a0a0b', light: '#f1f2ee' }, preview: ['#151617', '#c5f04a', '#60a5fa'] },
+  amman: { font: "'Readex Pro', system-ui, sans-serif", bar: { dark: '#0d1520', light: '#eef2f6' }, preview: ['#16202d', '#f2b33d', '#6fd0e8'] },
   teal: { font: "'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif", bar: { dark: '#070c18', light: '#eef2f5' }, preview: ['#0f5d5f', '#2dd4bf', '#fbbf24'] },
 };
 
-export const paletteOf = (settings) => PALETTES[settings.palette] || PALETTES.lime;
+export const paletteOf = (settings) => PALETTES[settings.palette] || PALETTES.amman;
 
 /** الخط المستخدم في تقرير PDF وغيره خارج CSS */
 export const fontOf = (settings) => paletteOf(settings).font;
 
 /** يطبّق الثيم والخط وحجمه على عنصر <html>. eff: 'dark' | 'light'. يرجع لون شريط النظام */
 export function applyAppearance(root, settings, eff) {
-  const id = PALETTES[settings.palette] ? settings.palette : 'lime';
+  const id = PALETTES[settings.palette] ? settings.palette : 'amman';
   root.dataset.palette = id;
   root.dataset.theme = eff;
   root.style.setProperty('--font', PALETTES[id].font);

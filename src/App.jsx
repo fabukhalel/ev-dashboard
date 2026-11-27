@@ -27,7 +27,8 @@ export default function App() {
       try {
         res = await loadPersisted(backend);
       } catch {
-        res = { state: null, source: 'corrupt' };
+        // تعذّرت القراءة من التخزين أصلاً: لا نعرف ما فيه، فلا نحفظ فوقه شيئاً في هذه الجلسة
+        res = { state: null, source: 'unreadable' };
       }
       let initial = res.state;
       if (!initial) {

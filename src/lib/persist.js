@@ -58,14 +58,21 @@ function parse(text) {
 
 /**
  * يحمّل الحالة. الترتيب: المفتاح الجديد، ثم الشكل القديم v1 في localStorage (ترحيل مرة واحدة، ويُترك الأصل كشبكة أمان).
- * يرجع {state, source: 'data'|'v1'|'fresh'|'corrupt'}
+ * يرجع {state, source: 'data'|'v1'|'fresh'|'corrupt'}. (App يضيف 'unreadable' إن فشلت القراءة نفسها)
  */
 export async function loadPersisted(backend, legacy = localStorageBackend()) {
-  const cur = migrate(parse(await backend.get(KEY_DATA)));
+  const curText = await backend.get(KEY_DATA);
+  const cur = migrate(parse(curText));
   if (cur) {
     const photo = await backend.get(KEY_PHOTO);
     if (photo) cur.settings = sanitizeSettings({ ...cur.settings, carPhoto: photo });
     return { state: cur, source: 'data' };
+  }
+  if (curText != null) {
+    // المفتاح الجديد موجود لكنه غير مقروء (تالف أو من نسخة أحدث): لا نكتب فوقه بيانات v1 القديمة،
+    // بل نحتفظ بنسخة منه أولاً
+    await backend.set(`${KEY_DATA}:corrupt-${Date.now()}`, curText);
+    return { state: null, source: 'corrupt' };
   }
   let oldText = null;
   try { oldText = await legacy.get(KEY_V1); } catch { /* لا يوجد localStorage */ }
@@ -74,10 +81,9 @@ export async function loadPersisted(backend, legacy = localStorageBackend()) {
     await writeState(backend, old, null);
     return { state: old, source: 'v1' };
   }
-  const curText = await backend.get(KEY_DATA);
-  if (curText != null || oldText != null) {
+  if (oldText != null) {
     // بيانات موجودة لكنها غير قابلة للقراءة: نحتفظ بنسخة منها قبل أن يكتب فوقها أي شيء
-    await backend.set(`${KEY_DATA}:corrupt-${Date.now()}`, curText ?? oldText);
+    await backend.set(`${KEY_DATA}:corrupt-${Date.now()}`, oldText);
     return { state: null, source: 'corrupt' };
   }
   return { state: null, source: 'fresh' };

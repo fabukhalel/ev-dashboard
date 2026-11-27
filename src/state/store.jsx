@@ -82,11 +82,14 @@ export function StoreProvider({ boot, children }) {
   const [saveError, setSaveError] = useState(false);
   const saver = useMemo(() => createSaver(boot.backend, { initialPhoto: boot.photo, onResult: (ok) => setSaveError(!ok) }), [boot]);
   const firstSave = useRef(boot.source === 'data');
+  const readOnly = boot.source === 'unreadable';
   useEffect(() => {
+    // التخزين غير مقروء: لا نكتب فوق بيانات قد تكون سليمة، ونُظهر تنبيه فشل الحفظ
+    if (readOnly) { setSaveError(true); return; }
     // لا داعي لإعادة كتابة ما حُمّل للتو كما هو
     if (firstSave.current) { firstSave.current = false; return; }
     saver.schedule(state);
-  }, [state, saver]);
+  }, [state, saver, readOnly]);
   useEffect(() => onBackground(() => { saver.flush(); }), [saver]);
 
   // ---- النسخ الاحتياطي التلقائي الأسبوعي (على الهاتف) ----

@@ -27,12 +27,14 @@ export default {
       keyframes: {
         sheet: { from: { transform: 'translateY(100%)' }, to: { transform: 'translateY(0)' } },
         fade: { from: { opacity: '0' }, to: { opacity: '1' } },
+        grow: { from: { transform: 'scaleY(0)' }, to: { transform: 'scaleY(1)' } },
         toast: { from: { opacity: '0', transform: 'translateY(8px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
       },
       animation: {
         sheet: 'sheet .28s cubic-bezier(.2,.8,.2,1)',
         fade: 'fade .2s ease-out',
         toast: 'toast .25s ease-out',
+        grow: 'grow .7s cubic-bezier(.2,.8,.2,1) both',
       },
     },
   },
