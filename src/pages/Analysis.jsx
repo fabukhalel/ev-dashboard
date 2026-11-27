@@ -84,32 +84,43 @@ export default function Analysis() {
       {rows.length > 0 && (
         <section className="space-y-3" aria-label={t('an_table')}>
           <SectionTitle>{t('an_table')}</SectionTitle>
-          {[...rows].reverse().map(({ p, s, days, current, title, sub }) => (
-            <div key={p.start} className="card p-4" data-testid="an-row">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="text-base font-bold">{title}</div>
-                  {sub && <div className="tabular text-sm text-slate-400" dir="ltr">{sub}</div>}
+          <div className="card divide-y divide-white/[0.07] overflow-hidden !rounded-[1.25rem]">
+            {[...rows].reverse().map(({ p, s, days, current, title, sub }) => {
+              const tot = s.homeEnergy + s.fastEnergy;
+              return (
+                <div key={p.start} className="p-4" data-testid="an-row">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 text-base font-bold">{title}{current && <span className="rounded-full bg-ink-900 px-2 py-0.5 text-xs font-medium text-accent">{t('current')}</span>}</div>
+                      {sub && <div className="tabular text-xs text-slate-400" dir="ltr">{sub}</div>}
+                    </div>
+                    <NumUnit value={fix(s.energy, 1)} unit="kWh" className="shrink-0 text-[1.75rem] font-bold leading-none" unitClass="text-sm font-medium text-slate-400" />
+                  </div>
+                  {tot > 0 && (
+                    <div className="mt-3 flex h-1.5 gap-0.5 overflow-hidden rounded-full" aria-hidden="true">
+                      {s.homeEnergy > 0 && <span style={{ flexGrow: s.homeEnergy, background: C.home }} />}
+                      {s.fastEnergy > 0 && <span style={{ flexGrow: s.fastEnergy, background: C.fast }} />}
+                    </div>
+                  )}
+                  <div className="tabular mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                    <span><i className="me-1.5 inline-block h-2 w-2 rounded-full" style={{ background: C.home }} />{t('type_home_s')} <b dir="ltr">{num(s.homeEnergy, 1)}</b></span>
+                    <span><i className="me-1.5 inline-block h-2 w-2 rounded-full" style={{ background: C.fast }} />{t('type_fast_s')} <b dir="ltr">{num(s.fastEnergy, 1)}</b></span>
+                  </div>
+                  <div className="tabular mt-2 grid grid-cols-3 gap-2 text-sm">
+                    <div><div className="text-xs text-slate-400">{t('kpi_cost')}</div><b>{fix(s.cost, 2)}</b> <span className="text-xs text-slate-400">{settings.currency}</span></div>
+                    <div><div className="text-xs text-slate-400">{t('charges_count')}</div><b>{s.count}</b></div>
+                    <div><div className="text-xs text-slate-400">{t('daily_avg')}</div><b dir="ltr">{num(s.energy / days, 1)}</b> <span className="text-xs text-slate-400">kWh</span></div>
+                  </div>
+                  {s.distance != null && (
+                    <div className="tabular mt-2 flex justify-between text-sm">
+                      <span className="text-slate-400">{t('m_distance')} <b className="text-slate-100" dir="ltr">{s.estimated ? '≈ ' : ''}{num(s.distance, 0)} {t('km')}</b></span>
+                      {s.efficiency != null && <span className="text-slate-400">{t('m_eff')} <b className="text-slate-100" dir="ltr">{fix(s.efficiency, 1)}</b></span>}
+                    </div>
+                  )}
                 </div>
-                <span className="text-sm text-slate-400">{t('charges_n', { n: s.count })}{current ? ` · ${t('current')}` : ''}</span>
-              </div>
-              <div className="mt-3 flex items-end justify-between gap-3">
-                <NumUnit value={fix(s.energy, 1)} unit="kWh" className="text-[2rem] font-bold leading-none" unitClass="text-sm font-medium text-slate-400" />
-                <span className="tabular text-sm text-slate-400">{fix(s.cost, 2)} {settings.currency}</span>
-              </div>
-              <div className="tabular mt-3 grid grid-cols-3 gap-2 text-sm">
-                <div><div className="text-slate-400">{t('type_home_s')}</div><b dir="ltr" style={{ color: C.home }}>{num(s.homeEnergy, 1)} kWh</b></div>
-                <div><div className="text-slate-400">{t('type_fast_s')}</div><b dir="ltr" style={{ color: C.fast }}>{num(s.fastEnergy, 1)} kWh</b></div>
-                <div><div className="text-slate-400">{t('daily_avg')}</div><b dir="ltr">{num(s.energy / days, 1)} kWh</b></div>
-              </div>
-              {s.distance != null && (
-                <div className="tabular mt-3 flex justify-between border-t border-white/[0.07] pt-3 text-sm">
-                  <span className="text-slate-400">{t('m_distance')} <b className="text-slate-100" dir="ltr">{s.estimated ? '≈ ' : ''}{num(s.distance, 0)} {t('km')}</b></span>
-                  {s.efficiency != null && <span className="text-slate-400">{t('m_eff')} <b className="text-slate-100" dir="ltr">{fix(s.efficiency, 1)}</b></span>}
-                </div>
-              )}
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </section>
       )}
 

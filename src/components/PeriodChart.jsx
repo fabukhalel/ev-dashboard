@@ -3,7 +3,7 @@ import { C } from './ui.jsx';
 import { fix } from '../lib/format.js';
 import { useI18n } from '../lib/i18n.jsx';
 
-// رسم SVG خفيف بلا مكتبات (A3): أعمدة رفيعة (مكدّسة منزلي/سريع أو مفردة) أو خط،
+// رسم SVG خفيف بلا مكتبات (A3): أعمدة (عنوان الفترة الأحدث بخط عريض) (مكدّسة منزلي/سريع أو مفردة) أو خط،
 // مع الرقم فوق كل عمود وخط متقطع للمتوسط. في العربية الأقدم يميناً.
 const W = 360;
 const H = 210;
@@ -26,7 +26,8 @@ export default function PeriodChart({ rows, kind, unit, ariaLabel, decimals = 1 
   const slot = iw / n;
   const xc = (i) => (rtl ? W - PAD.r - slot * (i + 0.5) : PAD.l + slot * (i + 0.5));
   const y = (v) => PAD.t + ih - ((v - lo) / (hi - lo || 1)) * ih;
-  const bw = Math.max(8, Math.min(22, slot * 0.42));
+  const bw = Math.max(8, Math.min(26, slot * 0.5));
+  const rx = 4; // نفس استدارة أعمدة شريط الدورة
   const fs = n > 8 ? 10.5 : 12;
   const line = rows.map((r, i) => (r.value != null ? `${xc(i).toFixed(1)},${y(r.value).toFixed(1)}` : null)).filter(Boolean).join(' ');
 
@@ -37,15 +38,18 @@ export default function PeriodChart({ rows, kind, unit, ariaLabel, decimals = 1 
           const x = xc(i) - bw / 2;
           const yh = y(r.home);
           const yt = y(r.home + r.fast);
-          const last = i === n - 1;
+          // عمود واحد مكدّس: المنزلي تحت والسريع فوقه بلا فراغ، والاستدارة على العمود كله
           return (
-            <g key={i} opacity={last ? 1 : 0.85}>
-              {r.home > 0 && <rect x={x} y={yh} width={bw} height={Math.max(0, y(0) - yh)} fill={C.home} rx={bw / 2} />}
-              {r.fast > 0 && <rect x={x} y={yt} width={bw} height={Math.max(0, yh - yt)} fill={C.fast} rx={bw / 2} />}
+            <g key={i}>
+              <clipPath id={`pc-${i}`}><rect x={x} y={yt} width={bw} height={Math.max(0, y(0) - yt)} rx={rx} /></clipPath>
+              <g clipPath={`url(#pc-${i})`}>
+                {r.home > 0 && <rect x={x} y={yh} width={bw} height={Math.max(0, y(0) - yh)} fill={C.home} />}
+                {r.fast > 0 && <rect x={x} y={yt} width={bw} height={Math.max(0, yh - yt)} fill={C.fast} />}
+              </g>
             </g>
           );
         })}
-        {kind === 'bar' && rows.map((r, i) => (r.value != null ? <rect key={i} x={xc(i) - bw / 2} y={y(r.value)} width={bw} height={Math.max(0, y(0) - y(r.value))} fill={C.accent} rx={bw / 2} /> : null))}
+        {kind === 'bar' && rows.map((r, i) => (r.value != null ? <rect key={i} x={xc(i) - bw / 2} y={y(r.value)} width={bw} height={Math.max(0, y(0) - y(r.value))} fill={C.accent} rx={rx} /> : null))}
         {kind === 'line' && (
           <>
             {line && <polyline points={line} fill="none" stroke={C.accent} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />}
@@ -64,7 +68,7 @@ export default function PeriodChart({ rows, kind, unit, ariaLabel, decimals = 1 
                   {fix(v, decimals)}
                 </text>
               )}
-              <text x={xc(i)} y={H - 8} fill={C.axis} fontSize={fs} textAnchor="middle">{r.label}</text>
+              <text x={xc(i)} y={H - 8} fill={i === n - 1 ? C.text : C.axis} fontSize={fs} fontWeight={i === n - 1 ? 700 : 400} textAnchor="middle">{r.label}</text>
             </g>
           );
         })}
