@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK + Play AAB
 
 on:
   workflow_dispatch:
@@ -20,6 +20,7 @@ jobs:
     outputs:
       file: ${{ steps.apk.outputs.file }}
       version: ${{ steps.apk.outputs.version }}
+      aab: ${{ steps.aab.outputs.file }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,6 +95,38 @@ jobs:
           echo "file=$OUT" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      # نسخة Google Play: ملف AAB بنفس المفتاح (مفتاح الرفع upload key) ونفس رقم البناء.
+      # تُبنى الواجهة من جديد بـ VITE_DISTRIBUTION=play: بدون زر «التحقق من التحديثات» ولا أي اتصال بالإنترنت.
+      - name: Build web for Google Play
+        run: npm run build && npx cap sync android
+        env:
+          VITE_BUILD_NUMBER: ${{ github.run_number }}
+          VITE_DISTRIBUTION: play
+
+      - name: Build signed release AAB (Google Play)
+        working-directory: android
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          VERSION_CODE: ${{ github.run_number }}
+        run: ./gradlew bundleRelease --no-daemon
+
+      - name: Verify AAB signature and name the file
+        id: aab
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          OUT="ev-dashboard-${VERSION}-${{ github.run_number }}-play.aab"
+          SRC=android/app/build/outputs/bundle/release/app-release.aab
+          if [ ! -f "$SRC" ]; then echo "::error::Signed AAB not found"; exit 1; fi
+          cp "$SRC" "$OUT"
+          # jarsigner يتأكد أن الملف موقّع؛ ونطبع بصمة الشهادة لمقارنتها مع بصمة الـ APK (نفس المفتاح)
+          jarsigner -verify -certs "$OUT" > aab-verify.txt 2>&1 || { cat aab-verify.txt; echo "::error::AAB signature check failed"; exit 1; }
+          grep -q "jar verified" aab-verify.txt || { cat aab-verify.txt; echo "::error::AAB is not signed"; exit 1; }
+          unzip -p "$OUT" 'META-INF/*.RSA' 'META-INF/*.EC' 'META-INF/*.DSA' 2>/dev/null | keytool -printcert | grep -E "SHA256|Owner" || true
+          echo "file=$OUT" >> "$GITHUB_OUTPUT"
+
       - name: Remove signing key
         if: always()
         run: rm -f "$RUNNER_TEMP/release.jks"
@@ -102,6 +135,12 @@ jobs:
         with:
           name: ev-dashboard-apk
           path: ${{ steps.apk.outputs.file }}
+
+      # هذا الملف يُرفع يدوياً إلى Play Console (Testing ▸ Closed testing ▸ Create release)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ev-dashboard-play-aab
+          path: ${{ steps.aab.outputs.file }}
 
   # النشر: عند tag يبدأ بـ v، أو تشغيل يدوي على main مع publish = true.
   # إن كان الإصدار موجوداً (أُنشئ من صفحة GitHub مثلاً) يُرفع الملف إليه بدل إنشائه من جديد.
@@ -115,16 +154,21 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: ev-dashboard-apk
+      # ملف AAB أيضاً في صفحة الإصدار، حتى يُنزَّل كملف عادي من الهاتف (الـ Artifacts تأتي مضغوطة zip)
+      - uses: actions/download-artifact@v4
+        with:
+          name: ev-dashboard-play-aab
       - name: Publish to GitHub Releases
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           APK: ${{ needs.apk.outputs.file }}
+          AAB: ${{ needs.apk.outputs.aab }}
           VERSION: ${{ needs.apk.outputs.version }}
         run: |
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then TAG="${GITHUB_REF_NAME}"; else TAG="v${VERSION}"; fi
           if gh release view "$TAG" > /dev/null 2>&1; then
-            gh release upload "$TAG" "$APK" --clobber
+            gh release upload "$TAG" "$APK" "$AAB" --clobber
           else
-            gh release create "$TAG" "$APK" --title "$TAG" --target "$GITHUB_SHA" --generate-notes
+            gh release create "$TAG" "$APK" "$AAB" --title "$TAG" --target "$GITHUB_SHA" --generate-notes
           fi

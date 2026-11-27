@@ -12,7 +12,7 @@ export default [
       ecmaVersion: 'latest',
       sourceType: 'module',
       parserOptions: { ecmaFeatures: { jsx: true } },
-      globals: { ...globals.browser, __APP_VERSION__: 'readonly', __BUILD_NUMBER__: 'readonly', __BUILD_DATE__: 'readonly' },
+      globals: { ...globals.browser, __APP_VERSION__: 'readonly', __BUILD_NUMBER__: 'readonly', __BUILD_DATE__: 'readonly', __PLAY__: 'readonly' },
     },
     settings: { react: { version: '18.3' } },
     plugins: { react, 'react-hooks': reactHooks },

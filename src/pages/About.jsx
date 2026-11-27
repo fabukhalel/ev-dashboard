@@ -10,6 +10,9 @@ const REPO = 'fabukhalel/ev-dashboard';
 export const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.0.0';
 const BUILD = typeof __BUILD_NUMBER__ !== 'undefined' ? __BUILD_NUMBER__ : '';
 const BUILD_DATE = typeof __BUILD_DATE__ !== 'undefined' ? __BUILD_DATE__ : '';
+// نسخة Google Play: التحديث عن طريق المتجر فقط، فلا زر «التحقق من التحديثات» ولا أي اتصال بالإنترنت
+const PLAY = typeof __PLAY__ !== 'undefined' && __PLAY__ === true;
+export const PRIVACY_URL = 'https://fabukhalel.github.io/ev-dashboard/privacy.html';
 
 /** مقارنة إصدارين بصيغة 1.2.3 (تتجاهل v في البداية) */
 export function newerThan(a, b) {
@@ -67,7 +70,7 @@ export default function About() {
 
       <div className="card row-divide overflow-hidden">
         <ListRow icon={Star} tint={C.home} title={t('whats_new')} sub={t('whats_new_sub')} onClick={() => setSheet('new')} />
-        {upd.state === 'new'
+        {PLAY ? null : upd.state === 'new'
           ? <ListRow icon={RefreshCw} tint={C.fast} title={t('upd_title')} sub={updSub} href={upd.url} testid="check-updates" />
           : <ListRow icon={RefreshCw} tint={C.fast} title={t('upd_title')} sub={updSub} onClick={check} testid="check-updates" />}
       </div>
@@ -98,7 +101,8 @@ export default function About() {
         </ul>
       </Sheet>
       <Sheet open={sheet === 'privacy'} onClose={() => setSheet(null)} title={t('privacy')}>
-        <p className="text-sm leading-relaxed text-slate-300">{t('privacy_text')}</p>
+        <p className="text-sm leading-relaxed text-slate-300">{t(PLAY ? 'privacy_text_play' : 'privacy_text')}</p>
+        <a className="mt-3 inline-block text-sm font-bold underline" style={{ color: 'rgb(var(--fast))' }} href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">{t('privacy_full')}</a>
       </Sheet>
       <Sheet open={sheet === 'libs'} onClose={() => setSheet(null)} title={t('libs')}>
         <ul className="row-divide text-sm">
