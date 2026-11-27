@@ -6,8 +6,14 @@ test('add, edit, delete a charge; tabs; language', async ({ page }) => {
   page.on('pageerror', (e) => errors.push(String(e)));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 
+  // أي مخالفة لسياسة أمان المحتوى (CSP) تُسجَّل وتُفشل الاختبار
+  await page.addInitScript(() => {
+    window.__csp = [];
+    document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(`${e.violatedDirective} ${e.blockedURI}`));
+  });
   await page.goto('/');
   await expect(page.getByTestId('greeting')).toBeVisible();
+  await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveAttribute('content', /script-src 'self'/);
 
   // إضافة
   await page.getByRole('button', { name: 'إضافة شحنة' }).first().click();
@@ -52,4 +58,20 @@ test('add, edit, delete a charge; tabs; language', async ({ page }) => {
   await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('button', { name: 'Home' })).toBeVisible();
 
   expect(errors).toEqual([]);
+  expect(await page.evaluate(() => window.__csp)).toEqual([]);
+});
+
+// السياسة تمنع سكربتاً داخلياً محقوناً (مثال على ما تحمي منه)
+test('CSP blocks an injected inline script', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('greeting')).toBeVisible();
+  const ran = await page.evaluate(async () => {
+    window.__ran = false;
+    const s = document.createElement('script');
+    s.textContent = 'window.__ran = true';
+    document.body.appendChild(s);
+    await new Promise((r) => setTimeout(r, 50));
+    return window.__ran;
+  });
+  expect(ran).toBe(false);
 });

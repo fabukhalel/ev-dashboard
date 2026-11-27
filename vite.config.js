@@ -4,10 +4,32 @@ import { readFileSync } from 'node:fs';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
+// سياسة أمان المحتوى (CSP): التطبيق يحمّل ملفاته فقط، والاتصال الخارجي الوحيد هو التحقق من التحديثات على GitHub.
+// تُضاف في البناء فقط، لأن خادم التطوير يحقن سكربتاً داخلياً لإعادة التحميل السريع.
+export const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  "connect-src 'self' https://api.github.com",
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ');
+
+const cspPlugin = {
+  name: 'csp-meta',
+  apply: 'build',
+  transformIndexHtml: () => [{ tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: CSP }, injectTo: 'head-prepend' }],
+};
+
 // base './' => يعمل على GitHub Pages (مسار فرعي) وداخل Capacitor (ملفات محلية)
 export default defineConfig({
   base: './',
-  plugins: [react()],
+  plugins: [react(), cspPlugin],
   // رقم الإصدار والبناء وتاريخه لصفحة «حول التطبيق» (رقم البناء من GitHub Actions)
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
@@ -20,7 +42,7 @@ export default defineConfig({
     coverage: {
       include: ['src/lib/**', 'src/state/reducer.js'],
       // رسم PDF على canvas والصور والثيم تعتمد على DOM، يغطيها اختبار Playwright؛ i18n قاموس نصوص
-      exclude: ['src/lib/report.js', 'src/lib/image.js', 'src/lib/theme.js', 'src/lib/i18n.jsx'],
+      exclude: ['src/lib/report.js', 'src/lib/theme.js', 'src/lib/i18n.jsx'],
       reporter: ['text-summary', 'text'],
       thresholds: { lines: 80, functions: 80, branches: 75 },
     },
